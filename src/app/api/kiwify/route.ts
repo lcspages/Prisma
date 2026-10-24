@@ -1,6 +1,6 @@
-import { json } from "@/lib/server/http";
+import { appUrl, json } from "@/lib/server/http";
 import { toChange, validSignature } from "@/lib/server/kiwify";
-import { dbConfig, rpc } from "@/lib/server/supabase";
+import { authFetch, dbConfig, rpc } from "@/lib/server/supabase";
 
 /** Guarda só o necessário do aviso (sem CPF, telefone ou endereço do cliente). */
 function summary(p: Record<string, unknown>) {
@@ -62,6 +62,15 @@ export async function POST(request: Request) {
       p_payload: summary(payload),
       p_change: change,
     });
+    // Compra nova aprovada: já manda o e-mail de boas-vindas com o link para criar a senha.
+    // Se falhar, o cliente ainda pode pedir o link em "Primeiro acesso".
+    if (result === "aplicado" && event === "order_approved" && change?.status === "ativa") {
+      try {
+        await authFetch("otp", { body: { email: change.email, create_user: true }, redirectTo: `${appUrl(request)}/definir-senha` });
+      } catch {
+        /* melhor esforço */
+      }
+    }
     return json({ ok: true, result });
   } catch {
     // Erro do nosso lado: a Kiwify tenta de novo depois.
