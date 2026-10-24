@@ -1,6 +1,7 @@
 import { LuPlay } from "react-icons/lu";
 import { cn } from "@/lib/cn";
 import { LANDING_VIDEO, youtubeEmbed } from "@/lib/landing";
+import { SCREEN, TITLE } from "./styles";
 
 /**
  * Seção do vídeo de apresentação. O vídeo é configurado em lib/landing.ts.
@@ -12,14 +13,14 @@ export function VideoSlot() {
 
   const frame = cn(
     "relative mx-auto overflow-hidden rounded-[28px] bg-[#141414]",
-    vertical ? "aspect-[9/16] w-[min(78vw,320px)]" : "aspect-video w-full max-w-[720px]",
+    vertical ? "aspect-[9/16] w-[min(78vw,320px)] lg:w-[min(320px,calc((100svh-190px)*0.5625))]" : "aspect-video w-full max-w-[720px]",
   );
   const embed = src ? youtubeEmbed(src) : null;
 
   return (
-    <section aria-labelledby="video-title" className="mx-auto w-full max-w-5xl px-5 pb-14 sm:px-8 lg:pb-20">
-      <div className="grid justify-items-center gap-8">
-        <h2 id="video-title" className="text-center text-[28px] font-semibold leading-[34px] tracking-[-0.025em] text-ink sm:text-[36px] sm:leading-[42px]">
+    <section aria-labelledby="video-title" className={cn(SCREEN, "pb-14")}>
+      <div className="mx-auto grid w-full max-w-6xl justify-items-center gap-8 px-5 sm:px-8 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-12">
+        <h2 id="video-title" className={cn(TITLE, "text-center lg:justify-self-start lg:text-left")}>
           Veja como funciona
         </h2>
         <div className={frame}>
