@@ -17,6 +17,10 @@ export async function proxy(request: NextRequest) {
   const { secret } = authConfig();
   const session = await verifySessionToken(secret, request.cookies.get(SESSION_COOKIE)?.value);
 
+  // Página inicial: landing page para visitantes; quem já entrou vai direto para o app.
+  if (pathname === "/") {
+    return session ? NextResponse.redirect(new URL("/hoje", request.url)) : NextResponse.next();
+  }
   if (GUEST_ONLY.includes(pathname)) {
     if (session) return NextResponse.redirect(new URL("/hoje", request.url));
     return NextResponse.next();
@@ -28,12 +32,12 @@ export async function proxy(request: NextRequest) {
       return NextResponse.json({ error: "Faça login para continuar." }, { status: 401 });
     }
     const url = new URL("/login", request.url);
-    if (pathname !== "/") url.searchParams.set("voltar", pathname + search);
+    url.searchParams.set("voltar", pathname + search);
     return NextResponse.redirect(url);
   }
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon-64.png|logo-prisma.png).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon-64.png|logo-prisma.png|landing/).*)"],
 };
