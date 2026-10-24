@@ -33,7 +33,7 @@ export default function TermsPage() {
             "Os pagamentos são processados pela Kiwify, que segue os próprios termos e meios de pagamento.",
             [
               "Plano mensal: renovado automaticamente a cada mês até você cancelar. O acesso vale enquanto a assinatura estiver paga.",
-              `Plano vitalício: pagamento único, com acesso enquanto o ${COMPANY.product} estiver em operação.`,
+              `Plano vitalício: pagamento único, com acesso por todo o tempo em que o ${COMPANY.product} continuar existindo. “Vitalício” significa que não há nova cobrança enquanto o serviço estiver em operação; não é uma garantia de que o serviço será mantido para sempre. Se o ${COMPANY.product} for encerrado, o acesso termina, como explicado em “Encerramento do serviço”.`,
             ],
             "Se um pagamento não for aprovado, o acesso pode ser suspenso até a regularização.",
           ],
@@ -69,8 +69,8 @@ export default function TermsPage() {
             [
               "Durante esse prazo você continua usando o serviço normalmente e pode pedir uma cópia dos seus dados, como descrito na Política de privacidade.",
               "Plano mensal: nenhuma nova cobrança será feita depois da data de encerramento, e o acesso vale até essa data.",
-              `Plano vitalício: o acesso vale enquanto o ${COMPANY.product} estiver em operação, ou seja, até a data de encerramento avisada.`,
-              "Depois do encerramento, seus dados serão excluídos em até 30 dias, ressalvados os registros que a lei exigir manter.",
+              `Plano vitalício: o acesso vale somente enquanto o ${COMPANY.product} tiver continuidade, ou seja, até a data de encerramento avisada. Depois dessa data, o acesso termina para todos os clientes.`,
+              "Depois do encerramento, as contas e os dados guardados no serviço deixam de existir (são apagados do sistema em até 30 dias), ressalvados os registros que a lei exigir manter. Por isso, aproveite o prazo do aviso para pedir uma cópia do que quiser guardar.",
             ],
           ],
         },
