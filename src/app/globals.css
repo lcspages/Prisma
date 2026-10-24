@@ -1,0 +1,220 @@
+@import "tailwindcss";
+
+/* O tema escuro é controlado pela classe .dark no <html> (ver theme-provider). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------
+   Design system do Prisma
+   Cores da marca: #2998FF (azul) · #FFD648 (amarelo) · #141414 (tinta) · #F8F8F8 (papel)
+   Regra de contraste: sobre azul ou amarelo, o texto é sempre #141414.
+   Branco sobre #2998FF dá ~3:1, abaixo do mínimo para texto (4,5:1).
+   ------------------------------------------------------------------ */
+:root {
+  --brand-blue: #2998ff;
+  --brand-yellow: #ffd648;
+  --brand-ink: #141414;
+  --brand-paper: #f8f8f8;
+
+  --canvas: #f8f8f8;
+  --surface: #ffffff;
+  --surface-2: #f1f1f1;
+  --surface-3: #e9e9e9;
+  --line: #e6e6e6;
+  --line-strong: #d4d4d4;
+
+  --ink: #141414;
+  --ink-2: #5e5e5e;
+  --ink-3: #949494;
+
+  --primary: #2998ff;
+  --on-primary: #141414;
+  --primary-soft: #e6f3ff;
+  --primary-ink: #0b6bc7; /* azul para texto sobre fundo claro (5,3:1) */
+
+  --accent: #ffd648;
+  --on-accent: #141414;
+  --accent-soft: #fff5d2;
+  --accent-ink: #7a5a00;
+
+  --heat-0: #ececec;
+  --heat-1: #c6e2ff;
+  --heat-2: #8cc6ff;
+  --heat-3: #4fa9ff;
+  --heat-4: #1a7fdc;
+
+  --elev-pop: 0 1px 2px rgb(20 20 20 / 0.05), 0 12px 32px -16px rgb(20 20 20 / 0.22);
+  --elev-modal: 0 24px 64px -24px rgb(20 20 20 / 0.35);
+
+  color-scheme: light;
+}
+
+/* Dark mode desenhado à parte, não invertido:
+   superfícies sobem de tom em vez de usar sombra, texto não é branco puro
+   e os tons suaves usam transparência para não "acender" na tela. */
+.dark {
+  --canvas: #141414;
+  --surface: #1b1b1b;
+  --surface-2: #232323;
+  --surface-3: #2c2c2c;
+  --line: #292929;
+  --line-strong: #393939;
+
+  --ink: #ececec;
+  --ink-2: #a3a3a3;
+  --ink-3: #6c6c6c;
+
+  --primary: #2998ff;
+  --on-primary: #141414;
+  --primary-soft: rgb(41 152 255 / 0.14);
+  --primary-ink: #6cb8ff;
+
+  --accent: #ffd648;
+  --on-accent: #141414;
+  --accent-soft: rgb(255 214 72 / 0.12);
+  --accent-ink: #ffd648;
+
+  --heat-0: #232323;
+  --heat-1: #133353;
+  --heat-2: #1a5591;
+  --heat-3: #2386e6;
+  --heat-4: #6cb8ff;
+
+  --elev-pop: 0 0 0 1px rgb(255 255 255 / 0.04), 0 16px 40px -20px rgb(0 0 0 / 0.7);
+  --elev-modal: 0 0 0 1px rgb(255 255 255 / 0.06), 0 32px 80px -24px rgb(0 0 0 / 0.8);
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-ink: var(--primary-ink);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-heat-0: var(--heat-0);
+  --color-heat-1: var(--heat-1);
+  --color-heat-2: var(--heat-2);
+  --color-heat-3: var(--heat-3);
+  --color-heat-4: var(--heat-4);
+
+  --shadow-pop: var(--elev-pop);
+  --shadow-modal: var(--elev-modal);
+
+  --font-sans: var(--font-poppins), "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  /* Escala tipográfica: 12 · 14 · 16 · 21 · 28 */
+  --text-meta: 12px;
+  --text-meta--line-height: 16px;
+  --text-body: 14px;
+  --text-body--line-height: 20px;
+  --text-lead: 16px;
+  --text-lead--line-height: 24px;
+  --text-title: 21px;
+  --text-title--line-height: 28px;
+  --text-display: 28px;
+  --text-display--line-height: 36px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-poppins), "Poppins", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "tnum" 0;
+  }
+  ::selection {
+    background: var(--primary-soft);
+  }
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+}
+
+/* Concluir tarefa: o traço do check se desenha (resposta a uma ação do usuário). */
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 16;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.check-draw {
+  stroke-dasharray: 16;
+  animation: check-draw 220ms ease-out both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.toast-in {
+  animation: toast-in 180ms ease-out both;
+}
+
+@keyframes palette-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.palette-in {
+  animation: palette-in 140ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
