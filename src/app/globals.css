@@ -209,25 +209,8 @@
   animation: palette-in 140ms ease-out both;
 }
 
-/* Landing page: os itens da rotina espalhada são riscados um por um ao abrir a página. */
-.landing-strike {
-  position: relative;
-  display: inline-block;
-}
-.landing-strike::after {
-  content: "";
-  position: absolute;
-  left: -3px;
-  right: -3px;
-  top: 54%;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--primary);
-  transform: scaleX(0);
-  transform-origin: left center;
-  animation: landing-strike 380ms cubic-bezier(0.6, 0, 0.2, 1) var(--d, 0ms) forwards;
-}
-/* Landing page: número ou preço que acabou de mudar dá um pulinho. */
+
+/* Landing page: número que acabou de mudar dá um pulinho. */
 @keyframes landing-pop {
   from {
     opacity: 0.4;
@@ -242,10 +225,19 @@
   display: inline-block;
   animation: landing-pop 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
-@keyframes landing-strike {
-  to {
-    transform: scaleX(1);
+
+/* Landing page: cartões de vidro flutuando devagar ao redor do celular da abertura. */
+@keyframes landing-float {
+  0%,
+  100% {
+    transform: translateY(0);
   }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.landing-float {
+  animation: landing-float 6s ease-in-out var(--fd, 0s) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
