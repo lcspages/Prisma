@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { LuCreditCard, LuLifeBuoy, LuLogOut, LuRefreshCw } from "react-icons/lu";
-import { COMPANY, CHECKOUT_URL } from "@/lib/legal";
+import { LuCreditCard, LuInfinity, LuLifeBuoy, LuLogOut, LuRefreshCw } from "react-icons/lu";
+import { COMPANY, CHECKOUT_URL, CHECKOUT_URL_LIFETIME } from "@/lib/legal";
 import { logout } from "@/components/layout/logout-button";
 import { AuthShell } from "../auth-ui";
 
@@ -77,8 +77,19 @@ export function SubscriptionStatus() {
       <div className="mt-7 space-y-3">
         {CHECKOUT_URL && status && status.status !== "chargeback" && (
           <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className={`${button} bg-primary text-on-primary hover:brightness-95`}>
-            <LuCreditCard className="size-5" aria-hidden />
-            {status.status === "nenhuma" ? "Assinar o Prisma" : "Renovar assinatura"}
+            <LuCreditCard className="size-5 shrink-0" aria-hidden />
+            <span className="min-w-0 truncate">{status.status === "nenhuma" ? "Assinar o plano mensal" : "Renovar plano mensal"}</span>
+          </a>
+        )}
+        {CHECKOUT_URL_LIFETIME && status && status.status !== "chargeback" && (
+          <a
+            href={CHECKOUT_URL_LIFETIME}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${button} ${CHECKOUT_URL ? "border border-primary/40 text-ink hover:bg-surface-2" : "bg-primary text-on-primary hover:brightness-95"}`}
+          >
+            <LuInfinity className="size-5 shrink-0" aria-hidden />
+            <span className="min-w-0 truncate">Comprar o plano vitalício</span>
           </a>
         )}
         <button type="button" onClick={() => void check()} disabled={checking} className={`${button} border border-line text-ink hover:bg-surface-2 disabled:opacity-60`}>
