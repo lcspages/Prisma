@@ -8,7 +8,7 @@ import { LegalLinks } from "@/components/layout/legal-links";
 import { PhoneShot } from "./phone-shot";
 import { Sky } from "./sky";
 import { VideoSlot } from "./video-slot";
-import { FeatureShowcase, HabitDemo, StickyCta } from "./landing-interactive";
+import { FeatureShowcase, HabitDemo, HeaderShell } from "./landing-interactive";
 import { BTN_DARK, BTN_GLASS, GLASS, SCREEN, TITLE, WRAP } from "./styles";
 
 const NAV = [
@@ -38,7 +38,7 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
 
 function Header() {
   return (
-    <header className="fixed inset-x-3 top-3 z-40 sm:inset-x-5 sm:top-4">
+    <HeaderShell>
       <div className={cn(GLASS, "mx-auto flex h-14 max-w-6xl items-center justify-between rounded-full pl-3 pr-2 sm:pl-4")}>
         <Link href="/" className="flex items-center gap-2" aria-label="Prisma, página inicial">
           <Image src="/logo-prisma.png" alt="" width={32} height={32} className="rounded-[22%]" priority />
@@ -56,7 +56,7 @@ function Header() {
           Entrar
         </Link>
       </div>
-    </header>
+    </HeaderShell>
   );
 }
 
@@ -277,14 +277,13 @@ export function LandingPage() {
         </section>
       </main>
 
-      <footer className={cn(WRAP, "flex flex-col items-center gap-3 pb-28 pt-8 text-center lg:flex-row lg:justify-between lg:pb-10 lg:text-left")}>
+      <footer className={cn(WRAP, "flex flex-col items-center gap-3 pb-10 pt-8 text-center lg:flex-row lg:justify-between lg:text-left")}>
         <a href={`mailto:${COMPANY.email}`} className="text-[13px] text-ink-3 underline-offset-2 hover:text-ink-2 hover:underline">
           {COMPANY.email}
         </a>
         <LegalLinks className="text-[12px]" />
       </footer>
 
-      <StickyCta />
     </div>
   );
 }

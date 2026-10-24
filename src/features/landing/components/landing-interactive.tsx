@@ -5,7 +5,6 @@ import type { IconType } from "react-icons";
 import { LuCalendarCheck, LuCheck, LuDumbbell, LuFlame, LuSparkles, LuTimer, LuTrendingUp } from "react-icons/lu";
 import { cn } from "@/lib/cn";
 import { PhoneShot, type Shot } from "./phone-shot";
-import { BTN_DARK } from "./styles";
 
 /* ------------------------------------------------------------ demo de hábitos */
 
@@ -140,40 +139,31 @@ export function FeatureShowcase({ phone, cards }: { phone: string; cards: string
   );
 }
 
-/* ------------------------------------------------------------ CTA fixo no celular */
+/* ------------------------------------------------------------ menu do topo */
 
-/** Botão fixo no rodapé do celular: aparece quando o botão da abertura sai da tela e some quando os planos estão na tela. */
-export function StickyCta() {
-  const [show, setShow] = useState(false);
+/**
+ * Menu flutuante: aparece (com animação) quando a página está no topo
+ * e some ao rolar para baixo.
+ */
+export function HeaderShell({ children }: { children: React.ReactNode }) {
+  const [atTop, setAtTop] = useState(true);
 
   useEffect(() => {
-    const hero = document.getElementById("cta-inicio");
-    const plans = document.getElementById("planos");
-    if (!hero || !plans) return;
-    const seen = { hero: true, plans: false };
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (e.target === hero) seen.hero = e.isIntersecting;
-        if (e.target === plans) seen.plans = e.isIntersecting;
-      }
-      setShow(!seen.hero && !seen.plans);
-    });
-    io.observe(hero);
-    io.observe(plans);
-    return () => io.disconnect();
+    const update = () => setAtTop(window.scrollY < 24);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
   }, []);
 
   return (
-    <div
+    <header
+      inert={!atTop}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(14px,env(safe-area-inset-bottom))] pt-3 transition-[transform,opacity] duration-300 lg:hidden",
-        show ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-full opacity-0",
+        "landing-header-in fixed inset-x-3 top-3 z-40 transition-[translate,opacity] duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] sm:inset-x-5 sm:top-4",
+        atTop ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-[140%] opacity-0",
       )}
-      aria-hidden={!show}
     >
-      <a href="#planos" tabIndex={show ? 0 : -1} className={cn(BTN_DARK, "h-14 w-full text-[16px] shadow-modal")}>
-        Quero o Prisma
-      </a>
-    </div>
+      {children}
+    </header>
   );
 }
