@@ -2,7 +2,7 @@
 export const COMPANY = {
   name: "andrade.dsgn",
   product: "Prisma",
-  email: "lcsfernandesapple@gmail.com",
+  email: "rotinaprisma@gmail.com",
   refundDays: 7,
   updatedAt: "24 de outubro de 2026",
 };

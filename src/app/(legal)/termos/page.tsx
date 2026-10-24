@@ -63,6 +63,18 @@ export default function TermsPage() {
           ],
         },
         {
+          title: "Encerramento do serviço",
+          body: [
+            `${COMPANY.name} pode decidir encerrar o ${COMPANY.product} em definitivo. Se isso acontecer, avisaremos com pelo menos 30 dias de antecedência, por um aviso dentro do próprio aplicativo, informando a data do encerramento.`,
+            [
+              "Durante esse prazo você continua usando o serviço normalmente e pode pedir uma cópia dos seus dados, como descrito na Política de privacidade.",
+              "Plano mensal: nenhuma nova cobrança será feita depois da data de encerramento, e o acesso vale até essa data.",
+              `Plano vitalício: o acesso vale enquanto o ${COMPANY.product} estiver em operação, ou seja, até a data de encerramento avisada.`,
+              "Depois do encerramento, seus dados serão excluídos em até 30 dias, ressalvados os registros que a lei exigir manter.",
+            ],
+          ],
+        },
+        {
           title: "Responsabilidade",
           body: [
             `O ${COMPANY.product} é uma ferramenta de organização e não substitui orientação profissional de saúde, treino ou estudo. Na medida permitida pela lei, não respondemos por danos indiretos decorrentes do uso ou da impossibilidade de uso do serviço.`,
