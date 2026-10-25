@@ -266,3 +266,19 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Celular e tablet: o iPhone dá zoom sozinho ao tocar num campo com letra menor que 16px.
+ * Os campos ficam com 16px nas telas de toque (fora das camadas, para valer sobre as classes),
+ * e o toque duplo deixa de dar zoom nos botões.
+ */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+html {
+  touch-action: manipulation;
+}
