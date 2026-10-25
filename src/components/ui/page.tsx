@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { TutorialHint } from "@/features/tutorials/tutorial-hint";
 
 /** Moldura padrão das páginas: largura máxima e respiro lateral. */
 export function Page({ children, className, wide = false }: { children: React.ReactNode; className?: string; wide?: boolean }) {
@@ -23,6 +24,7 @@ export function PageHeader({
       <div className="min-w-0">
         <h1 className="text-display font-semibold tracking-[-0.02em] text-ink">{title}</h1>
         {description && <p className="mt-1 max-w-prose text-lead text-ink-2">{description}</p>}
+        <TutorialHint />
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </header>

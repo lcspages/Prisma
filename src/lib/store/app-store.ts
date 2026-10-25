@@ -289,6 +289,15 @@ export async function resetDemo() {
   pushToast({ message: "Dados de exemplo restaurados" });
 }
 
+/* ---------------------------------------------------------------- perfil */
+
+/** Troca o nome mostrado no app. Devolve false se o nome for recusado. */
+export function updateDisplayName(displayName: string) {
+  const ok = run("updateProfile", { displayName });
+  if (ok) pushToast({ message: "Nome atualizado" });
+  return ok;
+}
+
 /* ---------------------------------------------------------------- tarefas */
 
 export function blankTask(defaults: Partial<Task> = {}): Task {
@@ -398,11 +407,18 @@ export function setQuadrant(id: ID, quadrant: Quadrant) {
 
 export function deleteTask(id: ID) {
   if (!state.data) return;
-  const delta: Delta = { remove: { tasks: [id] } };
-  removeWithUndo(delta, () => run("remove", { collection: "tasks", ids: [id] }), "Tarefa excluída");
-  // Tarefas que dependiam dela ficam livres.
-  const dependents = state.data.tasks.filter((t) => t.blockedById === id);
-  if (dependents.length) save("tasks", dependents.map((t) => ({ ...t, blockedById: null })));
+  // Tarefas que dependiam dela ficam livres (e voltam a depender dela se desfizer).
+  const freed = state.data.tasks.filter((t) => t.blockedById === id).map((t) => ({ ...t, blockedById: null }));
+  const delta: Delta = { remove: { tasks: [id] }, ...(freed.length ? { upsert: { tasks: freed } } : {}) };
+  removeWithUndo(
+    delta,
+    () => {
+      const ok = run("remove", { collection: "tasks", ids: [id] });
+      if (ok && freed.length) save("tasks", freed);
+      return ok;
+    },
+    "Tarefa excluída",
+  );
 }
 
 /* ---------------------------------------------------------------- módulos */

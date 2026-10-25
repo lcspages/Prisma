@@ -1,6 +1,8 @@
 import type { IconType } from "react-icons";
 import {
   LuCalendarCheck,
+  LuCirclePlay,
+  LuCircleUserRound,
   LuCalendarRange,
   LuChartColumn,
   LuDumbbell,
@@ -24,7 +26,7 @@ export const PRIMARY_NAV: NavItem[] = [
   { href: "/hoje", label: "Hoje", icon: LuHouse, description: "O que fazer agora" },
   { href: "/habitos", label: "Hábitos", icon: LuCalendarCheck, description: "Sua rotina diária e sequências" },
   { href: "/tarefas", label: "Tarefas", icon: LuListChecks, description: "Todas as tarefas, com filtro por módulo" },
-  { href: "/semana", label: "Semana", icon: LuCalendarRange, description: "Planeje e arraste entre os dias" },
+  { href: "/semana", label: "Semana", icon: LuCalendarRange, description: "Planeje os dias e mude tarefas de dia" },
   { href: "/matriz", label: "Matriz", icon: LuGrid2X2, description: "Urgente contra importante" },
   { href: "/foco", label: "Foco", icon: LuTimer, description: "Timer, sons e captura de ideias" },
   { href: "/treino", label: "Treino", icon: LuDumbbell, description: "Divisão semanal, cargas e cardio" },
@@ -39,9 +41,36 @@ export const MODULES_NAV: NavItem = {
   description: "Suas áreas e conteúdos",
 };
 
+export const PROFILE_NAV: NavItem = {
+  href: "/perfil",
+  label: "Perfil",
+  icon: LuCircleUserRound,
+  description: "Nome, senha, plano e aparência",
+};
+
+export const TUTORIALS_NAV: NavItem = {
+  href: "/tutoriais",
+  label: "Tutoriais",
+  icon: LuCirclePlay,
+  description: "Vídeos curtos ensinando cada parte",
+};
+
 const byHref = (href: string) => [...PRIMARY_NAV, MODULES_NAV].find((i) => i.href === href)!;
 
-/** No celular cabem quatro destinos fixos; o resto fica em "Mais". */
-export const MOBILE_NAV: NavItem[] = ["/hoje", "/habitos", "/foco", "/treino"].map(byHref);
+/** Barra de baixo do celular: dois destinos de cada lado do botão de criar. */
+export const MOBILE_NAV_LEFT: NavItem[] = ["/hoje", "/tarefas"].map(byHref);
+export const MOBILE_NAV_RIGHT: NavItem[] = ["/habitos"].map(byHref);
 
-export const MOBILE_MORE: NavItem[] = ["/tarefas", "/semana", "/matriz", "/modulos", "/relatorios", "/caixa-de-entrada"].map(byHref);
+/** Tudo o que aparece no Menu do celular, na ordem de uso. */
+export const MOBILE_MENU: NavItem[] = [
+  "/hoje",
+  "/tarefas",
+  "/habitos",
+  "/foco",
+  "/semana",
+  "/treino",
+  "/matriz",
+  "/modulos",
+  "/relatorios",
+  "/caixa-de-entrada",
+].map(byHref);

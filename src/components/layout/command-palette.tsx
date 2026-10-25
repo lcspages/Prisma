@@ -35,7 +35,7 @@ import { formatDuration, toISODate } from "@/lib/dates";
 import { useTheme } from "@/providers/theme-provider";
 import { cn } from "@/lib/cn";
 import { Kbd } from "@/components/ui/kbd";
-import { MODULES_NAV, PRIMARY_NAV } from "./nav-items";
+import { MODULES_NAV, PRIMARY_NAV, PROFILE_NAV, TUTORIALS_NAV } from "./nav-items";
 
 interface Command {
   id: string;
@@ -166,7 +166,7 @@ export function CommandPalette() {
       run: () => openModuleForm({}),
     });
 
-    [...PRIMARY_NAV, MODULES_NAV].forEach((item) =>
+    [...PRIMARY_NAV, MODULES_NAV, TUTORIALS_NAV, PROFILE_NAV].forEach((item) =>
       list.push({
         id: `nav-${item.href}`,
         group: "Ir para",

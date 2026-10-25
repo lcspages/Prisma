@@ -176,7 +176,7 @@ function QuadrantBox({
         </span>
       </header>
       {tasks.length === 0 ? (
-        <p className="m-auto px-4 py-6 text-center text-meta text-ink-3">Nenhuma tarefa aqui. Arraste uma para cá.</p>
+        <p className="m-auto px-4 py-6 text-center text-meta text-ink-3">Nenhuma tarefa aqui.<span className="hidden md:inline"> Arraste uma para cá.</span></p>
       ) : (
         <ul className="-mx-1 max-h-[420px] overflow-y-auto scrollbar-thin">
           {tasks.map((t) => (

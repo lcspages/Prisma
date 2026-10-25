@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
-import { LuPlus } from "react-icons/lu";
+import { LuCirclePlay, LuPlus } from "react-icons/lu";
 import { openModuleForm, useAppStore } from "@/lib/store/app-store";
 import { toISODate } from "@/lib/dates";
 import { habitsForDay } from "@/lib/selectors";
@@ -126,7 +126,23 @@ export function Sidebar() {
       </section>
 
       <div className="space-y-3 border-t border-line p-3">
-        <Link href="/relatorios" className="flex items-center gap-3 rounded-xl px-1.5 py-1 hover:bg-surface-2/70">
+        <Link
+          href="/tutoriais"
+          aria-current={pathname === "/tutoriais" ? "page" : undefined}
+          className={cn(
+            "flex h-9 items-center gap-3 rounded-xl px-2.5 transition-colors",
+            pathname === "/tutoriais" ? "bg-surface-2 font-semibold text-ink" : "text-ink-2 hover:bg-surface-2/70 hover:text-ink",
+          )}
+        >
+          <LuCirclePlay className={cn("size-[18px]", pathname === "/tutoriais" ? "text-primary" : "text-ink-3")} aria-hidden />
+          Tutoriais
+        </Link>
+        <Link
+          href="/perfil"
+          aria-label={`Perfil de ${data?.profile.displayName ?? ""}`}
+          aria-current={pathname === "/perfil" ? "page" : undefined}
+          className={cn("flex items-center gap-3 rounded-xl px-1.5 py-1 hover:bg-surface-2/70", pathname === "/perfil" && "bg-surface-2")}
+        >
           <span
             aria-hidden
             className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-body font-semibold text-on-accent"

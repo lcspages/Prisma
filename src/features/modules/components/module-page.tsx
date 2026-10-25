@@ -71,16 +71,16 @@ function ModuleContent({ data, module }: { data: Workspace; module: Module }) {
 
   return (
     <Page wide>
-      <header className="mb-6 flex flex-wrap items-center gap-4">
+      <header className="mb-6 flex items-center gap-3 sm:gap-4">
         <ModuleBadge module={module} size="lg" />
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-display font-semibold tracking-[-0.02em] text-ink">{module.name}</h1>
+          <h1 className="line-clamp-2 break-words text-display font-semibold tracking-[-0.02em] text-ink">{module.name}</h1>
           <p className="text-ink-2">{MODULE_TEMPLATES.find((t) => t.id === module.template)?.name}</p>
         </div>
-        <div className="flex gap-1">
-          <Button variant="ghost" onClick={() => openModuleForm({ moduleId: module.id })}>
+        <div className="flex shrink-0 gap-1">
+          <Button variant="ghost" onClick={() => openModuleForm({ moduleId: module.id })} aria-label={`Editar módulo ${module.name}`}>
             <LuPencil className="size-4" aria-hidden />
-            Editar
+            <span className="hidden sm:inline">Editar</span>
           </Button>
           <Button variant="ghost" onClick={remove} aria-label={`Excluir módulo ${module.name}`}>
             <LuTrash2 className="size-4" aria-hidden />

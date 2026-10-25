@@ -14,7 +14,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL || "https://prismarotina.com.br"),
   title: { default: "Prisma", template: "%s | Prisma" },
   description: "Rotina, estudos, treino e foco organizados em módulos.",
-  icons: { icon: "/icon-64.png", apple: "/logo-prisma.png" },
+  icons: { icon: "/icon-64.png", apple: "/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "Prisma", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {

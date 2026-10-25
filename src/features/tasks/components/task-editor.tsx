@@ -271,7 +271,7 @@ function EditorForm({ initial, isNew, fromInboxId }: { initial: Task; isNew: boo
               aria-label="Data"
               type="date"
               value={draft.dueDate ?? ""}
-              onChange={(e) => set({ dueDate: e.target.value || null })}
+              onChange={(e) => set(e.target.value ? { dueDate: e.target.value } : { dueDate: null, scheduledTime: null })}
               className="mt-2.5 sm:max-w-[220px]"
             />
           )}

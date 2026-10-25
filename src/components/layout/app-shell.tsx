@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { getState, loadWorkspace, restoreFocus, setPaletteOpen } from "@/lib/store/app-store";
 import { FocusEngine } from "@/features/focus/components/focus-engine";
+import { InstallGuide } from "@/features/install/install-guide";
 import { CommandPalette } from "./command-palette";
 import { GlobalDialogs } from "./global-dialogs";
 import { MobileNav } from "./mobile-nav";
@@ -62,6 +63,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <GlobalDialogs />
       <Toaster />
       <FocusEngine />
+      <InstallGuide />
     </div>
   );
 }

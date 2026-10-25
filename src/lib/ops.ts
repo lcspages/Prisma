@@ -238,6 +238,15 @@ function deleteModule(ws: Workspace, args: { id: ID }): Delta {
   };
 }
 
+/** Troca o nome mostrado no app. */
+function updateProfile(ws: Workspace, args: { displayName: string }): Delta {
+  const name = typeof args?.displayName === "string" ? args.displayName.replace(/\s+/g, " ").trim() : "";
+  if (!name) throw new Error("Digite um nome");
+  if (name.length > 40) throw new Error("Use um nome com até 40 letras");
+  if (name === ws.profile.displayName) return {};
+  return { profile: { ...ws.profile, displayName: name } };
+}
+
 export const ops = {
   upsert,
   remove,
@@ -247,6 +256,7 @@ export const ops = {
   logExercise,
   deleteFolder,
   deleteModule,
+  updateProfile,
 };
 
 export type Ops = typeof ops;

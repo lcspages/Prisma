@@ -49,7 +49,7 @@ function InboxContent({ data, now }: { data: Workspace; now: Date }) {
       <SectionHeader title="Ideias" count={items.length} />
 
       {items.length === 0 ? (
-        <EmptyState title="Caixa vazia" body="Tudo processado. As ideias que você anotar no modo foco aparecem aqui." />
+        <EmptyState title="Caixa vazia" body="Tudo processado. As ideias que você anotar no Foco ou pelo botão Criar aparecem aqui." />
       ) : (
         <ul className="space-y-2">
           {items.map((item) => {

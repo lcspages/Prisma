@@ -25,6 +25,13 @@ export function ContributionHeatmap({ days }: { days: ActivityDay[] }) {
     lastMonth = m;
     return MONTHS[m];
   });
+  // Dois nomes de mês muito perto um do outro se sobrepõem: fica só o mais recente.
+  let lastLabel = -1;
+  monthLabels.forEach((label, i) => {
+    if (!label) return;
+    if (lastLabel >= 0 && i - lastLabel < 3) monthLabels[lastLabel] = "";
+    lastLabel = i;
+  });
 
   const activeDays = days.filter((d) => d.level > 0).length;
   const gridStyle = { gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` };
@@ -35,7 +42,14 @@ export function ContributionHeatmap({ days }: { days: ActivityDay[] }) {
         Ativo em {activeDays} dos últimos {days.length} dias.
       </figcaption>
 
-      <div aria-hidden className="-mx-1 overflow-x-auto px-1 pb-1">
+      <div
+        aria-hidden
+        className="-mx-1 overflow-x-auto px-1 pb-1"
+        // No celular o mapa rola de lado: começa mostrando os dias mais recentes.
+        ref={(el) => {
+          if (el) el.scrollLeft = el.scrollWidth;
+        }}
+      >
         <div className="min-w-[640px]">
         <div className="mb-1.5 grid gap-1 text-[11px] leading-3 text-ink-3" style={gridStyle}>
           {monthLabels.map((label, i) => (

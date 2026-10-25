@@ -45,7 +45,7 @@ export function Tabs<T extends string>({
             tabIndex={active ? 0 : -1}
             onClick={() => onChange(t.value)}
             className={cn(
-              "relative flex h-11 shrink-0 items-center gap-1.5 px-3 transition-colors",
+              "relative flex h-11 min-w-fit flex-1 shrink-0 items-center justify-center gap-1.5 px-2 transition-colors md:flex-none md:justify-start md:px-3",
               active ? "font-semibold text-ink" : "text-ink-2 hover:text-ink",
             )}
           >

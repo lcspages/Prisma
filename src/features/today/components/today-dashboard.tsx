@@ -78,7 +78,8 @@ function TodayContent({ data, now }: { data: Workspace; now: Date }) {
         <div>
           <p className="text-ink-2">{formatLongDate(now)}</p>
           <h1 className="mt-0.5 text-display font-semibold tracking-[-0.02em] text-ink">
-            {greeting(now)}, {data.profile.displayName.split(" ")[0]}
+            {greeting(now)}
+            {data.profile.displayName.trim() ? `, ${data.profile.displayName.trim().split(" ")[0]}` : ""}
           </h1>
         </div>
         <Button onClick={() => openEditor({ taskId: null })}>

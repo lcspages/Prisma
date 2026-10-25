@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LuPause, LuPlay, LuSearch } from "react-icons/lu";
+import { LuPause, LuPlay, LuSearch, LuUserRound } from "react-icons/lu";
 import { pauseFocus, setPaletteOpen, startFocus, useAppStore } from "@/lib/store/app-store";
 import { formatTimer } from "@/lib/dates";
 import { useTick } from "@/lib/hooks/use-tick";
@@ -74,6 +74,22 @@ export function Topbar() {
   );
 }
 
+/** Atalho para o Perfil com a inicial do nome. */
+function ProfileButton() {
+  const name = useAppStore((s) => s.data?.profile.displayName);
+  const pathname = usePathname();
+  return (
+    <Link
+      href="/perfil"
+      aria-label="Abrir perfil"
+      aria-current={pathname === "/perfil" ? "page" : undefined}
+      className="ml-1 grid size-9 place-items-center rounded-full bg-accent text-body font-semibold text-on-accent ring-offset-2 ring-offset-canvas aria-[current=page]:ring-2 aria-[current=page]:ring-primary"
+    >
+      {name?.charAt(0).toUpperCase() || <LuUserRound className="size-[18px]" aria-hidden />}
+    </Link>
+  );
+}
+
 /** Barra superior do celular. */
 export function MobileTopbar() {
   return (
@@ -90,6 +106,7 @@ export function MobileTopbar() {
           <LuSearch className="size-[18px]" aria-hidden />
         </button>
         <ThemeToggleButton />
+        <ProfileButton />
       </div>
     </header>
   );
