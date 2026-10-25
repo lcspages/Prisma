@@ -16,6 +16,8 @@ export const metadata: Metadata = {
   description: "Rotina, estudos, treino e foco organizados em módulos.",
   icons: { icon: "/icon-64.png", apple: "/apple-touch-icon.png" },
   appleWebApp: { capable: true, title: "Prisma", statusBarStyle: "default" },
+  // O iPhone abre o ícone da tela inicial como app (sem a barra do navegador) com esta marcação.
+  other: { "apple-mobile-web-app-capable": "yes" },
 };
 
 export const viewport: Viewport = {

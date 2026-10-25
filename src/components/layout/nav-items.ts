@@ -57,9 +57,9 @@ export const TUTORIALS_NAV: NavItem = {
 
 const byHref = (href: string) => [...PRIMARY_NAV, MODULES_NAV].find((i) => i.href === href)!;
 
-/** Barra de baixo do celular: dois destinos de cada lado do botão de criar. */
-export const MOBILE_NAV_LEFT: NavItem[] = ["/hoje", "/tarefas"].map(byHref);
-export const MOBILE_NAV_RIGHT: NavItem[] = ["/habitos"].map(byHref);
+/** Barra de baixo do celular: três destinos de cada lado do botão de criar (o último da direita é o Menu). */
+export const MOBILE_NAV_LEFT: NavItem[] = ["/hoje", "/tarefas", "/habitos"].map(byHref);
+export const MOBILE_NAV_RIGHT: NavItem[] = [byHref("/foco"), { ...TUTORIALS_NAV, label: "Tutoriais" }];
 
 /** Tudo o que aparece no Menu do celular, na ordem de uso. */
 export const MOBILE_MENU: NavItem[] = [

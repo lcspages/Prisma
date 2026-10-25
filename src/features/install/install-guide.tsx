@@ -249,10 +249,10 @@ const ANDROID_STEPS: React.ReactNode[] = [
     no canto de cima.
   </>,
   <>
-    Toque em <b>Adicionar à tela inicial</b> ou <b>Instalar app</b>.
+    Toque em <b>Instalar app</b> (ou em <b>Adicionar à tela inicial</b>).
   </>,
   <>
-    Confirme em <b>Instalar</b>. O ícone aparece na tela inicial.
+    Escolha <b>Instalar</b>, e não “Criar atalho”: o atalho abre no navegador. O ícone aparece na tela inicial.
   </>,
 ];
 
@@ -276,6 +276,7 @@ const IOS_STEPS: React.ReactNode[] = [
     <b>Adicionar à Tela de Início</b>.
   </>,
   <>
-    Toque em <b>Adicionar</b>, no canto de cima. O ícone aparece na tela inicial.
+    Se aparecer a opção <b>Abrir como app Web</b>, deixe ligada. Toque em <b>Adicionar</b>, no canto de cima. O ícone aparece na tela
+    inicial.
   </>,
 ];

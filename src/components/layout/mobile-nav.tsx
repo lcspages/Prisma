@@ -37,9 +37,9 @@ function BarLink({ item, pathname }: { item: NavItem; pathname: string }) {
       <Link
         href={item.href}
         aria-current={active ? "page" : undefined}
-        className={cn("flex h-16 flex-col items-center justify-center gap-1 text-[11px]", active ? "font-semibold text-ink" : "text-ink-2")}
+        className={cn("flex h-16 flex-col items-center justify-center gap-1 text-[10.5px] tracking-[-0.01em]", active ? "font-semibold text-ink" : "text-ink-2")}
       >
-        <span className={cn("grid h-7 w-12 place-items-center rounded-full transition-colors", active && "bg-primary-soft")}>
+        <span className={cn("grid h-7 w-11 place-items-center rounded-full transition-colors", active && "bg-primary-soft")}>
           <Icon className={cn("size-5", active && "text-primary-ink")} aria-hidden />
         </span>
         {item.label}
@@ -49,7 +49,7 @@ function BarLink({ item, pathname }: { item: NavItem; pathname: string }) {
 }
 
 /**
- * Navegação do celular: Hoje, Tarefas, Criar (no meio), Hábitos e Menu.
+ * Navegação do celular: Hoje, Tarefas, Hábitos, Criar (no meio), Foco, Tutoriais e Menu.
  * O Menu mostra todas as partes do Prisma com nome e explicação.
  */
 export function MobileNav() {
@@ -65,7 +65,7 @@ export function MobileNav() {
         aria-label="Principal"
         className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
       >
-        <ul className="grid grid-cols-5">
+        <ul className="grid grid-cols-7">
           {MOBILE_NAV_LEFT.map((item) => (
             <BarLink key={item.href} item={item} pathname={pathname} />
           ))}
@@ -74,7 +74,7 @@ export function MobileNav() {
               type="button"
               onClick={() => setCreateOpen(true)}
               aria-haspopup="dialog"
-              className="flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold text-ink"
+              className="flex h-16 flex-col items-center justify-center gap-1 text-[10.5px] font-semibold text-ink"
             >
               <span className="-mt-6 grid size-12 place-items-center rounded-full bg-primary text-on-primary shadow-[0_8px_20px_-6px_rgba(41,152,255,0.7)] ring-4 ring-canvas">
                 <LuPlus className="size-6" strokeWidth={2.5} aria-hidden />
@@ -90,9 +90,9 @@ export function MobileNav() {
               type="button"
               onClick={() => setMenuOpen(true)}
               aria-haspopup="dialog"
-              className={cn("flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px]", menuActive ? "font-semibold text-ink" : "text-ink-2")}
+              className={cn("flex h-16 w-full flex-col items-center justify-center gap-1 text-[10.5px] tracking-[-0.01em]", menuActive ? "font-semibold text-ink" : "text-ink-2")}
             >
-              <span className={cn("grid h-7 w-12 place-items-center rounded-full transition-colors", menuActive && "bg-primary-soft")}>
+              <span className={cn("grid h-7 w-11 place-items-center rounded-full transition-colors", menuActive && "bg-primary-soft")}>
                 <LuLayoutGrid className={cn("size-5", menuActive && "text-primary-ink")} aria-hidden />
               </span>
               Menu
