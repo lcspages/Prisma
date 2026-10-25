@@ -4,7 +4,7 @@ export const COMPANY = {
   product: "Prisma",
   email: "rotinaprisma@gmail.com",
   refundDays: 7,
-  updatedAt: "24 de outubro de 2026",
+  updatedAt: "25 de outubro de 2026",
 };
 
 /** Página de compra do plano mensal na Kiwify (configure NEXT_PUBLIC_CHECKOUT_URL). */

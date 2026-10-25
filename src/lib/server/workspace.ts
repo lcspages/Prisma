@@ -110,11 +110,17 @@ const validId = (value: unknown) => typeof value === "string" && value.length > 
 export function parseOp(body: unknown): { name: OpName; args: unknown; ctx: OpContext } {
   const b = (body ?? {}) as { name?: unknown; args?: unknown; ctx?: { now?: unknown; today?: unknown } };
   if (typeof b.name !== "string" || !Object.prototype.hasOwnProperty.call(ops, b.name)) throw new OpError("Ação desconhecida.");
-  const now = typeof b.ctx?.now === "string" && !Number.isNaN(Date.parse(b.ctx.now)) ? b.ctx.now : new Date().toISOString();
-  const today = typeof b.ctx?.today === "string" && /^\d{4}-\d{2}-\d{2}$/.test(b.ctx.today) ? b.ctx.today : now.slice(0, 10);
+  // A hora é sempre a do servidor (os pontos das batalhas dependem dela); o dia vem do
+  // aparelho (fuso do usuário), mas só é aceito se estiver a no máximo um dia da data do servidor.
+  const now = new Date().toISOString();
+  const clientDay = typeof b.ctx?.today === "string" && /^\d{4}-\d{2}-\d{2}$/.test(b.ctx.today) ? b.ctx.today : null;
+  const dayDiff = clientDay ? Math.abs(Date.parse(`${clientDay}T12:00:00Z`) - Date.parse(`${now.slice(0, 10)}T12:00:00Z`)) / 86_400_000 : Infinity;
+  const today = clientDay && dayDiff <= 1 ? clientDay : now.slice(0, 10);
   const args = (b.args ?? {}) as Record<string, unknown>;
   if (b.name === "upsert" || b.name === "remove") {
     if (!isCollection(args.collection)) throw new OpError("Coleção inválida.");
+    // Pontos e sessões de foco só nascem das ações do app (concluir, marcar, focar, treinar).
+    if (args.collection === "xpEvents" || args.collection === "focusSessions") throw new OpError("Coleção inválida.");
     const list = (b.name === "upsert" ? args.items : args.ids) as unknown;
     if (!Array.isArray(list) || list.length > MAX_ITEMS_PER_OP) throw new OpError("Pedido inválido.");
     if (b.name === "upsert" && !list.every((i) => i && typeof i === "object" && validId((i as { id?: unknown }).id))) {

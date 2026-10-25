@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/field";
 import { openInstallGuide } from "@/features/install/install-guide";
 import { MOBILE_MENU, MOBILE_NAV_LEFT, MOBILE_NAV_RIGHT, PROFILE_NAV, TUTORIALS_NAV, type NavItem } from "./nav-items";
 import { ModuleBadge } from "./module-badge";
+import { pendingCount, useSocial } from "@/features/social/social-store";
 import { ThemeSwitch } from "./theme-switch";
 import { LogoutButton } from "./logout-button";
 import { LegalLinks } from "./legal-links";
@@ -37,9 +38,9 @@ function BarLink({ item, pathname }: { item: NavItem; pathname: string }) {
       <Link
         href={item.href}
         aria-current={active ? "page" : undefined}
-        className={cn("flex h-16 flex-col items-center justify-center gap-1 text-[10.5px] tracking-[-0.01em]", active ? "font-semibold text-ink" : "text-ink-2")}
+        className={cn("flex h-16 flex-col items-center justify-center gap-1 text-[11px]", active ? "font-semibold text-ink" : "text-ink-2")}
       >
-        <span className={cn("grid h-7 w-11 place-items-center rounded-full transition-colors", active && "bg-primary-soft")}>
+        <span className={cn("grid h-7 w-12 place-items-center rounded-full transition-colors", active && "bg-primary-soft")}>
           <Icon className={cn("size-5", active && "text-primary-ink")} aria-hidden />
         </span>
         {item.label}
@@ -49,7 +50,7 @@ function BarLink({ item, pathname }: { item: NavItem; pathname: string }) {
 }
 
 /**
- * Navegação do celular: Hoje, Tarefas, Hábitos, Criar (no meio), Foco, Tutoriais e Menu.
+ * Navegação do celular: Hoje, Tarefas, Criar (no meio), Hábitos e Menu.
  * O Menu mostra todas as partes do Prisma com nome e explicação.
  */
 export function MobileNav() {
@@ -58,6 +59,7 @@ export function MobileNav() {
   const [createOpen, setCreateOpen] = useState(false);
   const inBar = [...MOBILE_NAV_LEFT, ...MOBILE_NAV_RIGHT].some((i) => isActive(pathname, i.href));
   const menuActive = !inBar;
+  const pending = useSocial((s) => pendingCount(s.data));
 
   return (
     <>
@@ -65,7 +67,7 @@ export function MobileNav() {
         aria-label="Principal"
         className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
       >
-        <ul className="grid grid-cols-7">
+        <ul className="grid grid-cols-5">
           {MOBILE_NAV_LEFT.map((item) => (
             <BarLink key={item.href} item={item} pathname={pathname} />
           ))}
@@ -74,7 +76,7 @@ export function MobileNav() {
               type="button"
               onClick={() => setCreateOpen(true)}
               aria-haspopup="dialog"
-              className="flex h-16 flex-col items-center justify-center gap-1 text-[10.5px] font-semibold text-ink"
+              className="flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold text-ink"
             >
               <span className="-mt-6 grid size-12 place-items-center rounded-full bg-primary text-on-primary shadow-[0_8px_20px_-6px_rgba(41,152,255,0.7)] ring-4 ring-canvas">
                 <LuPlus className="size-6" strokeWidth={2.5} aria-hidden />
@@ -90,19 +92,25 @@ export function MobileNav() {
               type="button"
               onClick={() => setMenuOpen(true)}
               aria-haspopup="dialog"
-              className={cn("flex h-16 w-full flex-col items-center justify-center gap-1 text-[10.5px] tracking-[-0.01em]", menuActive ? "font-semibold text-ink" : "text-ink-2")}
+              className={cn("flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px]", menuActive ? "font-semibold text-ink" : "text-ink-2")}
             >
-              <span className={cn("grid h-7 w-11 place-items-center rounded-full transition-colors", menuActive && "bg-primary-soft")}>
+              <span className={cn("relative grid h-7 w-12 place-items-center rounded-full transition-colors", menuActive && "bg-primary-soft")}>
                 <LuLayoutGrid className={cn("size-5", menuActive && "text-primary-ink")} aria-hidden />
+                {pending > 0 && (
+                  <span className="tabular absolute -top-1 right-1 grid min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-semibold leading-4 text-on-accent">
+                    {pending}
+                  </span>
+                )}
               </span>
               Menu
+              {pending > 0 && <span className="sr-only">, {pending} {pending === 1 ? "aviso" : "avisos"} em Amigos</span>}
             </button>
           </li>
         </ul>
       </nav>
 
       <CreateSheet open={createOpen} onClose={() => setCreateOpen(false)} />
-      <MenuSheet open={menuOpen} onClose={() => setMenuOpen(false)} pathname={pathname} />
+      <MenuSheet open={menuOpen} onClose={() => setMenuOpen(false)} pathname={pathname} pending={pending} />
     </>
   );
 }
@@ -197,7 +205,7 @@ function CreateSheet({ open, onClose }: { open: boolean; onClose: () => void }) 
 
 /* ---------------------------------------------------------------- menu */
 
-function MenuSheet({ open, onClose, pathname }: { open: boolean; onClose: () => void; pathname: string }) {
+function MenuSheet({ open, onClose, pathname, pending }: { open: boolean; onClose: () => void; pathname: string; pending: number }) {
   const modulesData = useAppStore((s) => s.data?.modules);
   const modules = useMemo(() => [...(modulesData ?? [])].sort((a, b) => a.position - b.position), [modulesData]);
 
@@ -217,8 +225,15 @@ function MenuSheet({ open, onClose, pathname }: { open: boolean; onClose: () => 
                   active ? "border-primary/50 bg-primary-soft" : "border-line bg-canvas hover:border-line-strong",
                 )}
               >
-                <span className={cn("grid size-9 place-items-center rounded-xl", active ? "bg-primary text-on-primary" : "bg-surface-2 text-ink")}>
-                  <Icon className="size-[18px]" aria-hidden />
+                <span className="flex items-start justify-between gap-2">
+                  <span className={cn("grid size-9 place-items-center rounded-xl", active ? "bg-primary text-on-primary" : "bg-surface-2 text-ink")}>
+                    <Icon className="size-[18px]" aria-hidden />
+                  </span>
+                  {href === "/amigos" && pending > 0 && (
+                    <span className="tabular rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-on-accent">
+                      {pending} {pending === 1 ? "novo" : "novos"}
+                    </span>
+                  )}
                 </span>
                 <span className="mt-2 font-semibold leading-5 text-ink">{label}</span>
                 <span className="mt-0.5 text-[12px] leading-4 text-ink-2">{description}</span>

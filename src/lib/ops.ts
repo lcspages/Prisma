@@ -8,6 +8,7 @@
  * No Supabase, cada operação vira uma função RPC (ou um upsert/delete simples).
  */
 import type {
+  Area,
   CollectionKey,
   EntityOf,
   ExerciseLog,
@@ -20,6 +21,7 @@ import type {
   XpEvent,
 } from "@/types/domain";
 import { spawnNext } from "@/features/tasks/lib/recurrence";
+import { areaOf } from "@/lib/areas";
 import { XP_PER_HABIT, XP_PER_WORKOUT_LOG, xpForFocus, xpForTask } from "@/features/gamification/lib/xp";
 
 export type Delta = {
@@ -78,8 +80,23 @@ function withXp(profile: Profile, amount: number, now: string): Profile {
   return { ...profile, totalXp: Math.max(0, profile.totalXp + amount), lastActivityAt: now };
 }
 
-function xpEvent(id: ID, amount: number, source: XpEvent["source"], refId: ID | null, at: string): XpEvent {
-  return { id, amount, source, refId, at };
+function xpEvent(
+  id: ID,
+  amount: number,
+  source: XpEvent["source"],
+  refId: ID | null,
+  at: string,
+  extra: { area: Area; day?: ISODate },
+): XpEvent {
+  return { id, amount, source, refId, at, ...extra };
+}
+
+/** Sessão de foco não pode durar mais do que o tempo que passou desde o início (nem mais de 4 h). */
+function clampFocusMinutes(session: FocusSession, now: string): number {
+  const elapsed = (Date.parse(now) - Date.parse(session.startedAt)) / 60_000;
+  const minutes = Number.isFinite(session.minutes) ? Math.floor(session.minutes) : 0;
+  if (!Number.isFinite(elapsed)) return 0;
+  return Math.max(0, Math.min(minutes, 240, Math.ceil(elapsed) + 5));
 }
 
 /* ---------------------------------------------------------------- */
@@ -119,7 +136,7 @@ function completeTask(
     return {
       upsert: {
         tasks: spawned ? [updated, spawned] : [updated],
-        xpEvents: [xpEvent(args.xpId, amount, "task", task.id, ctx.now)],
+        xpEvents: [xpEvent(args.xpId, amount, "task", task.id, ctx.now, { area: areaOf(ws, task.moduleId) })],
       },
       profile: withXp(ws.profile, amount, ctx.now),
     };
@@ -158,7 +175,9 @@ function setHabitDone(
     return {
       upsert: {
         habits: [{ ...habit, checks }],
-        xpEvents: [xpEvent(args.xpId, XP_PER_HABIT, "habit", `${habit.id}:${args.date}`, ctx.now)],
+        xpEvents: [
+          xpEvent(args.xpId, XP_PER_HABIT, "habit", `${habit.id}:${args.date}`, ctx.now, { area: areaOf(ws, habit.moduleId), day: args.date }),
+        ],
       },
       profile: withXp(ws.profile, XP_PER_HABIT, ctx.now),
     };
@@ -172,11 +191,14 @@ function setHabitDone(
 }
 
 function logFocus(ws: Workspace, args: { session: FocusSession; xpId: ID }, ctx: OpContext): Delta {
-  const amount = xpForFocus(args.session.minutes);
+  const session = { ...args.session, minutes: clampFocusMinutes(args.session, ctx.now) };
+  if (session.minutes < 1) return {};
+  const amount = xpForFocus(session.minutes);
+  const task = session.taskId ? ws.tasks.find((t) => t.id === session.taskId) : undefined;
   return {
     upsert: {
-      focusSessions: [args.session],
-      xpEvents: amount > 0 ? [xpEvent(args.xpId, amount, "focus", args.session.id, ctx.now)] : [],
+      focusSessions: [session],
+      xpEvents: amount > 0 ? [xpEvent(args.xpId, amount, "focus", session.id, ctx.now, { area: areaOf(ws, task?.moduleId) })] : [],
     },
     profile: withXp(ws.profile, amount, ctx.now),
   };
@@ -187,7 +209,7 @@ function logExercise(ws: Workspace, args: { log: ExerciseLog; xpId: ID }, ctx: O
   return {
     upsert: {
       exerciseLogs: [args.log],
-      xpEvents: isNew ? [xpEvent(args.xpId, XP_PER_WORKOUT_LOG, "workout", args.log.id, ctx.now)] : [],
+      xpEvents: isNew ? [xpEvent(args.xpId, XP_PER_WORKOUT_LOG, "workout", args.log.id, ctx.now, { area: "treino" })] : [],
     },
     profile: isNew ? withXp(ws.profile, XP_PER_WORKOUT_LOG, ctx.now) : undefined,
   };

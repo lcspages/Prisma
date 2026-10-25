@@ -13,6 +13,9 @@ export type ClockTime = string;
 
 export type ModuleTemplate = "blank" | "study" | "code" | "training";
 
+/** Categoria dos pontos nas batalhas. */
+export type Area = "estudo" | "trabalho" | "treino" | "pessoal";
+
 export type ModuleColor = "blue" | "yellow" | "green" | "violet" | "coral" | "slate";
 
 export type ModuleIcon =
@@ -31,6 +34,8 @@ export interface Module {
   icon: ModuleIcon;
   template: ModuleTemplate;
   position: number;
+  /** Categoria dos pontos (sem valor = a do modelo). */
+  area?: Area;
 }
 
 /** Pastas aninhadas até 3 níveis (depth 1..3). */
@@ -136,6 +141,10 @@ export interface XpEvent {
   amount: number;
   source: "task" | "habit" | "focus" | "workout";
   refId: ID | null;
+  /** Categoria em que os pontos contam nas batalhas. */
+  area?: Area;
+  /** Hábitos: o dia marcado (só conta na batalha se for do período dela). */
+  day?: ISODate;
 }
 
 export interface Profile {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { LuChevronDown, LuFlame, LuPlus, LuTimer } from "react-icons/lu";
+import { LuChevronDown, LuChevronRight, LuCirclePlay, LuFlame, LuPlus, LuTimer } from "react-icons/lu";
 import type { Task, Workspace } from "@/types/domain";
 import { openEditor, useAppStore } from "@/lib/store/app-store";
 import {
@@ -87,6 +87,30 @@ function TodayContent({ data, now }: { data: Workspace; now: Date }) {
           Nova tarefa
         </Button>
       </header>
+
+      {/* Celular: atalhos para os tutoriais (em destaque) e para o foco */}
+      <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] gap-2 md:hidden">
+        <Link
+          href="/tutoriais"
+          className="flex min-w-0 items-center gap-3 rounded-2xl bg-primary px-4 py-3 text-on-primary shadow-[0_8px_20px_-10px_rgba(41,152,255,0.8)] active:translate-y-px"
+        >
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#141414]/10">
+            <LuCirclePlay className="size-5" aria-hidden />
+          </span>
+          <span className="min-w-0 flex-1 leading-tight">
+            <span className="block font-semibold">Tutoriais</span>
+            <span className="block truncate text-meta opacity-80">Aprenda a usar o Prisma</span>
+          </span>
+          <LuChevronRight className="size-4 shrink-0 opacity-70" aria-hidden />
+        </Link>
+        <Link
+          href="/foco"
+          className="flex items-center gap-2 rounded-2xl border border-line bg-surface px-4 font-semibold text-ink active:translate-y-px"
+        >
+          <LuTimer className="size-[18px] text-primary-ink" aria-hidden />
+          Foco
+        </Link>
+      </div>
 
       <QuickStats data={data} now={now} openCount={openToday.length} doneCount={doneToday.length} />
 

@@ -13,6 +13,7 @@
  */
 import { useSyncExternalStore } from "react";
 import type {
+  Area,
   ClockTime,
   ExerciseLog,
   FocusSession,
@@ -423,7 +424,7 @@ export function deleteTask(id: ID) {
 
 /* ---------------------------------------------------------------- módulos */
 
-export function createModule(input: { name: string; color: ModuleColor; icon: ModuleIcon; template: ModuleTemplate }): ID {
+export function createModule(input: { name: string; color: ModuleColor; icon: ModuleIcon; template: ModuleTemplate; area?: Area }): ID {
   const id = newId();
   const position = (state.data?.modules.length ?? 0) + 1;
   const module: Module = { id, ...input, name: input.name.trim(), position };

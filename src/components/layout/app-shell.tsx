@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { getState, loadWorkspace, restoreFocus, setPaletteOpen } from "@/lib/store/app-store";
 import { FocusEngine } from "@/features/focus/components/focus-engine";
 import { InstallGuide } from "@/features/install/install-guide";
+import { loadSocial } from "@/features/social/social-store";
 import { CommandPalette } from "./command-palette";
 import { GlobalDialogs } from "./global-dialogs";
 import { MobileNav } from "./mobile-nav";
@@ -17,6 +18,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       restoreFocus();
       void loadWorkspace();
     }
+  }, []);
+
+  // Pedidos de amizade, convites e desafios: confere ao abrir e ao voltar para o app.
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_DATA_SOURCE === "mock") return;
+    void loadSocial({ silent: true });
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void loadSocial({ silent: true });
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, []);
 
   // Avisa antes de fechar a aba com alterações ainda indo para a nuvem.

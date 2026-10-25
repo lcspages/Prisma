@@ -17,10 +17,12 @@ import { PRIMARY_NAV } from "./nav-items";
 import { ThemeSwitch } from "./theme-switch";
 import { LogoutButton } from "./logout-button";
 import { LegalLinks } from "./legal-links";
+import { pendingCount, useSocial } from "@/features/social/social-store";
 
 export function Sidebar() {
   const pathname = usePathname();
   const data = useAppStore((s) => s.data);
+  const social = useSocial((s) => s.data);
 
   const counts = useMemo(() => {
     const today = toISODate(new Date());
@@ -35,9 +37,10 @@ export function Sidebar() {
       "/habitos": habitsLeft,
       "/tarefas": (data?.tasks ?? []).filter((t) => !t.completedAt).length,
       "/caixa-de-entrada": data?.inbox.length ?? 0,
+      "/amigos": pendingCount(social),
     };
     return { nav, byModule };
-  }, [data]);
+  }, [data, social]);
 
   const level = data ? levelFromXp(data.profile.totalXp) : null;
   const modules = useMemo(() => [...(data?.modules ?? [])].sort((a, b) => a.position - b.position), [data?.modules]);

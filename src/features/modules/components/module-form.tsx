@@ -1,7 +1,8 @@
 "use client";
 
 import { useId, useState } from "react";
-import type { Module, ModuleColor, ModuleIcon, ModuleTemplate } from "@/types/domain";
+import type { Area, Module, ModuleColor, ModuleIcon, ModuleTemplate } from "@/types/domain";
+import { AREAS, moduleArea } from "@/lib/areas";
 import { createModule, updateModule } from "@/lib/store/app-store";
 import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/button";
@@ -26,10 +27,13 @@ export function ModuleForm({
   const [color, setColor] = useState<ModuleColor>(module?.color ?? def.defaultColor);
   const [icon, setIcon] = useState<ModuleIcon>(module?.icon ?? def.defaultIcon);
   const [touched, setTouched] = useState(Boolean(module));
+  const [area, setArea] = useState<Area>(module ? moduleArea(module) : moduleArea({ template: "study" }));
+  const [areaTouched, setAreaTouched] = useState(Boolean(module));
   const ids = { name: useId() };
 
   const pickTemplate = (t: ModuleTemplate) => {
     setTemplate(t);
+    if (!areaTouched) setArea(moduleArea({ template: t }));
     if (!touched) {
       const d = MODULE_TEMPLATES.find((x) => x.id === t)!;
       setColor(d.defaultColor);
@@ -40,10 +44,10 @@ export function ModuleForm({
   const submit = () => {
     if (!name.trim()) return;
     if (module) {
-      updateModule({ ...module, name: name.trim(), color, icon });
+      updateModule({ ...module, name: name.trim(), color, icon, area });
       onClose();
     } else {
-      const id = createModule({ name, color, icon, template });
+      const id = createModule({ name, color, icon, template, area });
       onClose();
       onCreated?.(id);
     }
@@ -104,6 +108,32 @@ export function ModuleForm({
             </div>
           </fieldset>
         )}
+
+        <fieldset>
+          <legend className="mb-1.5 text-meta font-semibold text-ink-2">Categoria nas batalhas</legend>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Categoria nas batalhas">
+            {AREAS.map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                role="radio"
+                aria-checked={area === a.id}
+                onClick={() => {
+                  setArea(a.id);
+                  setAreaTouched(true);
+                }}
+                className={cn(
+                  "rounded-2xl border px-3 py-2 text-left transition-colors",
+                  area === a.id ? "border-primary bg-primary-soft" : "border-line hover:border-line-strong",
+                )}
+              >
+                <span className="block font-semibold text-ink">{a.label}</span>
+                <span className="block text-[11px] leading-tight text-ink-3">{a.hint}</span>
+              </button>
+            ))}
+          </div>
+          <p className="mt-1.5 text-meta text-ink-3">Tarefas, hábitos e foco deste módulo somam pontos nessa categoria.</p>
+        </fieldset>
 
         <fieldset>
           <legend className="mb-1.5 text-meta font-semibold text-ink-2">Cor</legend>

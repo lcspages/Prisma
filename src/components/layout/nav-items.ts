@@ -11,6 +11,7 @@ import {
   LuHouse,
   LuInbox,
   LuListChecks,
+  LuSwords,
   LuTimer,
 } from "react-icons/lu";
 
@@ -32,6 +33,7 @@ export const PRIMARY_NAV: NavItem[] = [
   { href: "/treino", label: "Treino", icon: LuDumbbell, description: "Divisão semanal, cargas e cardio" },
   { href: "/relatorios", label: "Relatórios", icon: LuChartColumn, description: "Consistência, energia e revisão" },
   { href: "/caixa-de-entrada", label: "Caixa de entrada", icon: LuInbox, description: "Ideias e interrupções anotadas" },
+  { href: "/amigos", label: "Amigos", icon: LuSwords, description: "Grupos e batalhas de pontos" },
 ];
 
 export const MODULES_NAV: NavItem = {
@@ -57,15 +59,16 @@ export const TUTORIALS_NAV: NavItem = {
 
 const byHref = (href: string) => [...PRIMARY_NAV, MODULES_NAV].find((i) => i.href === href)!;
 
-/** Barra de baixo do celular: três destinos de cada lado do botão de criar (o último da direita é o Menu). */
-export const MOBILE_NAV_LEFT: NavItem[] = ["/hoje", "/tarefas", "/habitos"].map(byHref);
-export const MOBILE_NAV_RIGHT: NavItem[] = [byHref("/foco"), { ...TUTORIALS_NAV, label: "Tutoriais" }];
+/** Barra de baixo do celular: dois destinos de cada lado do botão de criar (o último da direita é o Menu). */
+export const MOBILE_NAV_LEFT: NavItem[] = ["/hoje", "/tarefas"].map(byHref);
+export const MOBILE_NAV_RIGHT: NavItem[] = ["/habitos"].map(byHref);
 
 /** Tudo o que aparece no Menu do celular, na ordem de uso. */
 export const MOBILE_MENU: NavItem[] = [
   "/hoje",
   "/tarefas",
   "/habitos",
+  "/amigos",
   "/foco",
   "/semana",
   "/treino",

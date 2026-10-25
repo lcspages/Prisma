@@ -50,6 +50,13 @@ export default function PrivacyPage() {
           ],
         },
         {
+          title: "Amigos e batalhas",
+          body: [
+            "Se você usar Amigos, Grupos ou Batalhas, estas informações aparecem para as pessoas que você adicionou ou que estão no mesmo grupo: seu nome no Prisma, seu código de amigo e os pontos que você fez em cada batalha.",
+            "Ninguém vê suas tarefas, hábitos, anotações, treinos ou seu e-mail. Você pode desfazer uma amizade ou sair de um grupo a qualquer momento.",
+          ],
+        },
+        {
           title: "Cookies",
           body: [
             "Usamos apenas um cookie essencial, que mantém você conectado, e o armazenamento do navegador para preferências como o tema claro ou escuro. Não usamos cookies de propaganda.",
