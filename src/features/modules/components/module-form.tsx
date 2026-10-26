@@ -111,7 +111,7 @@ export function ModuleForm({
 
         <fieldset>
           <legend className="mb-1.5 text-meta font-semibold text-ink-2">Categoria nas batalhas</legend>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Categoria nas batalhas">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Categoria nas batalhas">
             {AREAS.map((a) => (
               <button
                 key={a.id}

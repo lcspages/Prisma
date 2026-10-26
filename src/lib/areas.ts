@@ -10,7 +10,9 @@ export const AREAS: Array<{ id: Area; label: string; hint: string }> = [
   { id: "estudo", label: "Estudo", hint: "Faculdade, cursos, leitura" },
   { id: "trabalho", label: "Trabalho", hint: "Emprego, projetos, negócios" },
   { id: "treino", label: "Treino", hint: "Academia, corrida, esportes" },
-  { id: "pessoal", label: "Pessoal", hint: "Casa, saúde, rotina e o resto" },
+  { id: "alimentacao", label: "Alimentação", hint: "Dieta, refeições, água" },
+  { id: "sono", label: "Sono", hint: "Hora de dormir, descanso" },
+  { id: "pessoal", label: "Pessoal", hint: "Casa, rotina e o resto" },
 ];
 
 export const BATTLE_CATEGORIES: Array<{ id: Area | "geral"; label: string }> = [

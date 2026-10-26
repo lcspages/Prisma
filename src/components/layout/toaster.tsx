@@ -74,7 +74,7 @@ export function Toaster() {
   return (
     <ol
       aria-live="polite"
-      className="pointer-events-none fixed inset-x-4 bottom-20 z-50 flex flex-col items-center gap-2 md:inset-x-auto md:bottom-6 md:right-6 md:items-end [&>li]:pointer-events-auto [&>li]:w-full md:[&>li]:w-auto md:[&>li]:min-w-[300px]"
+      className="pointer-events-none fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-50 flex flex-col items-center gap-2 md:inset-x-auto md:bottom-6 md:right-6 md:items-end [&>li]:pointer-events-auto [&>li]:w-full md:[&>li]:w-auto md:[&>li]:min-w-[300px]"
     >
       {toasts.map((t) => (
         <ToastItem key={t.id} toast={t} />

@@ -21,6 +21,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // Ocupa a tela toda no iPhone e deixa o app saber o tamanho da barrinha de baixo
+  // (sem isso, a barrinha do iPhone fica por cima do menu).
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#F8F8F8" },
     { media: "(prefers-color-scheme: dark)", color: "#141414" },

@@ -20,15 +20,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Pedidos de amizade, convites e desafios: confere ao abrir e ao voltar para o app.
+  // Pedidos de amizade, convites e desafios: confere ao abrir, ao voltar para o app
+  // e a cada 20 segundos enquanto o app está na tela (para aparecer sem recarregar).
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_DATA_SOURCE === "mock") return;
-    void loadSocial({ silent: true });
-    const onVisible = () => {
+    const refresh = () => {
       if (document.visibilityState === "visible") void loadSocial({ silent: true });
     };
-    document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
+    refresh();
+    const timer = window.setInterval(refresh, 20_000);
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("focus", refresh);
+    window.addEventListener("online", refresh);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("online", refresh);
+    };
   }, []);
 
   // Avisa antes de fechar a aba com alterações ainda indo para a nuvem.
@@ -66,7 +75,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar />
         <MobileTopbar />
-        <main id="conteudo" className="flex-1 pb-28 md:pb-16">
+        <main id="conteudo" className="flex-1 pb-[calc(7rem+env(safe-area-inset-bottom))] md:pb-16">
           {children}
         </main>
       </div>

@@ -51,8 +51,7 @@ export function SocialPage() {
       setCodeInput(code.toUpperCase().slice(0, 6));
       setTab("amigos");
     }
-    const timer = window.setInterval(() => void loadSocial({ silent: true }), 60_000);
-    return () => window.clearInterval(timer);
+    // A atualização automática (a cada 20 s) fica no AppShell.
   }, []);
 
   if (!data) {
@@ -363,6 +362,10 @@ function HowPointsWork() {
             <b className="text-ink">A categoria vem do módulo.</b> Cada módulo tem uma categoria ({AREAS.map((a) => a.label).join(", ")}), que você
             escolhe ao criar ou editar o módulo. Tarefas, hábitos e sessões de foco ligados a ele contam nessa categoria. O que não tem módulo
             conta como Pessoal, e os registros da aba Treino contam como Treino.
+          </p>
+          <p>
+            Para batalhas de Alimentação ou Sono, crie um módulo (por exemplo, “Alimentação”) com essa categoria e coloque nele os hábitos, como
+            beber água ou dormir cedo.
           </p>
           <p>Na categoria Geral, tudo conta.</p>
           <p>Só valem os pontos feitos durante a batalha, com no máximo 400 pontos por pessoa por dia, para ninguém trapacear.</p>

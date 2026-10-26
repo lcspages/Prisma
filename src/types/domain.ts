@@ -14,7 +14,7 @@ export type ClockTime = string;
 export type ModuleTemplate = "blank" | "study" | "code" | "training";
 
 /** Categoria dos pontos nas batalhas. */
-export type Area = "estudo" | "trabalho" | "treino" | "pessoal";
+export type Area = "estudo" | "trabalho" | "treino" | "alimentacao" | "sono" | "pessoal";
 
 export type ModuleColor = "blue" | "yellow" | "green" | "violet" | "coral" | "slate";
 

@@ -93,7 +93,7 @@ function ProfileButton() {
 /** Barra superior do celular. */
 export function MobileTopbar() {
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-line bg-canvas/90 px-4 backdrop-blur md:hidden">
+    <header className="sticky top-0 z-20 flex h-[calc(3.5rem+env(safe-area-inset-top))] items-center pt-[env(safe-area-inset-top)] gap-2 border-b border-line bg-canvas/90 px-4 backdrop-blur md:hidden">
       <Logo size={26} />
       <div className="ml-auto flex items-center gap-1">
         <FocusMini className="mr-1" />
