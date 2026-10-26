@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ReminderPrompt } from "@/features/notifications/notification-settings";
 import { useMemo, useState } from "react";
 import { LuChevronDown, LuChevronRight, LuCirclePlay, LuFlame, LuPlus, LuTimer } from "react-icons/lu";
 import type { Task, Workspace } from "@/types/domain";
@@ -111,6 +112,8 @@ function TodayContent({ data, now }: { data: Workspace; now: Date }) {
           Foco
         </Link>
       </div>
+
+      <ReminderPrompt />
 
       <QuickStats data={data} now={now} openCount={openToday.length} doneCount={doneToday.length} />
 

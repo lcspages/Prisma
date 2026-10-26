@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getState, loadWorkspace, pushToast, restoreFocus, setPaletteOpen } from "@/lib/store/app-store";
 import { FocusEngine } from "@/features/focus/components/focus-engine";
 import { InstallGuide } from "@/features/install/install-guide";
+import { initPush } from "@/features/notifications/push-client";
 import { loadSocial, onSocialNews, requestSocialTab, type SocialTab } from "@/features/social/social-store";
 import { CommandPalette } from "./command-palette";
 import { GlobalDialogs } from "./global-dialogs";
@@ -22,6 +23,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       restoreFocus();
       void loadWorkspace();
     }
+  }, []);
+
+  // Lembretes (notificações): prepara o aparelho e confere a inscrição.
+  useEffect(() => {
+    void initPush();
   }, []);
 
   // Pedidos de amizade, convites e desafios: confere ao abrir, ao voltar para o app

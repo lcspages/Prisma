@@ -23,7 +23,7 @@ import { Chip, Input } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState, Page, PageHeader, ProgressBar } from "@/components/ui/page";
 import { Tabs } from "@/components/ui/tabs";
-import { loadSocial, socialAction, useSocial, type Battle, type Group, type SocialState, type SocialTab } from "./social-store";
+import { getSocialData, loadSocial, socialAction, useSocial, type Battle, type Group, type SocialState, type SocialTab } from "./social-store";
 
 type Tab = SocialTab;
 const DAYS = [1, 3, 7, 14, 30];
@@ -391,26 +391,7 @@ function BattleCard({ battle: b, meId }: { battle: Battle; meId: string }) {
         ))}
       </ol>
 
-      {b.status === "ativa" && b.mine && (
-        <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3">
-          <p className="text-meta text-ink-3">Vence quem tiver mais pontos ao encerrar.</p>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() =>
-              askConfirm({
-                title: "Encerrar a batalha agora?",
-                body: "O placar vale até este momento e o vencedor é definido na hora. Não dá para desfazer.",
-                actionLabel: "Encerrar",
-                onConfirm: () => void act("encerrar-batalha", { battle: b.id }, "Batalha encerrada"),
-              })
-            }
-          >
-            <LuFlag className="size-4" aria-hidden />
-            Encerrar
-          </Button>
-        </div>
-      )}
+      {b.status === "ativa" && b.myStatus === "aceito" && <EndBattle battle={b} />}
 
       {b.status === "pendente" && b.mine && (
         <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3">
@@ -421,6 +402,52 @@ function BattleCard({ battle: b, meId }: { battle: Battle; meId: string }) {
         </div>
       )}
     </li>
+  );
+}
+
+/** Encerrar antes do prazo: cada participante pede; termina quando 1/3 pediu (1 contra 1: qualquer um). */
+function EndBattle({ battle: b }: { battle: Battle }) {
+  const needed = b.endNeeded ?? 1;
+  const votes = b.endVotes ?? 0;
+  const solo = needed <= 1;
+
+  const request = () =>
+    askConfirm({
+      title: solo ? "Encerrar a batalha agora?" : "Pedir para encerrar a batalha?",
+      body: solo
+        ? "O placar vale até este momento e o vencedor é definido na hora. Não dá para desfazer."
+        : `A batalha termina quando ${needed} participantes pedirem (1/3 do grupo). O placar vale até esse momento.`,
+      actionLabel: solo ? "Encerrar" : "Pedir para encerrar",
+      onConfirm: async () => {
+        const err = await socialAction("encerrar-batalha", { battle: b.id });
+        if (err) return void pushToast({ message: err });
+        const now = getSocialData()?.battles.find((x) => x.id === b.id);
+        if (!now || now.status === "encerrada") pushToast({ message: "Batalha encerrada" });
+        else {
+          const left = Math.max(0, (now.endNeeded ?? 1) - (now.endVotes ?? 0));
+          pushToast({ message: `Pedido registrado. ${left === 1 ? "Falta 1 pessoa" : `Faltam ${left} pessoas`} pedir para encerrar.` });
+        }
+      },
+    });
+
+  return (
+    <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
+      <p className="text-meta text-ink-3">
+        {solo
+          ? "Qualquer um pode encerrar. Vence quem tiver mais pontos."
+          : `Pedidos para encerrar: ${votes} de ${needed}${b.myEndVote ? " (você já pediu)" : ""}`}
+      </p>
+      {b.myEndVote && !solo ? (
+        <Button size="sm" variant="ghost" onClick={() => act("manter-batalha", { battle: b.id }, "Pedido para encerrar desfeito")}>
+          Desfazer pedido
+        </Button>
+      ) : (
+        <Button size="sm" variant="ghost" onClick={request}>
+          <LuFlag className="size-4" aria-hidden />
+          {solo ? "Encerrar" : "Pedir para encerrar"}
+        </Button>
+      )}
+    </div>
   );
 }
 
@@ -446,6 +473,10 @@ function HowPointsWork() {
           </p>
           <p>Na categoria Geral, tudo conta.</p>
           <p>Só valem os pontos feitos durante a batalha, com no máximo 400 pontos por pessoa por dia, para ninguém trapacear.</p>
+          <p>
+            Para terminar antes do prazo: no 1 contra 1, qualquer um dos dois encerra. Em grupo, a batalha termina quando pelo menos 1/3 dos
+            participantes pedir para encerrar.
+          </p>
         </div>
       )}
     </section>

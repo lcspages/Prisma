@@ -5,7 +5,8 @@ import { authConfig, SESSION_COOKIE, verifySessionToken } from "@/lib/auth/sessi
 const GUEST_ONLY = ["/login", "/primeiro-acesso", "/esqueci-senha"];
 /** Abertas para todos. */
 const PUBLIC = ["/definir-senha", "/termos", "/privacidade", "/reembolso"];
-const PUBLIC_API = ["/api/auth/", "/api/kiwify"];
+/** Rotas com proteção própria: login, aviso da Kiwify (token) e lembretes agendados (CRON_SECRET). */
+const PUBLIC_API = ["/api/auth/", "/api/kiwify", "/api/cron/"];
 
 /**
  * Protege o app inteiro: sem sessão válida, vai para /login.
@@ -40,6 +41,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icon-64.png|icon-192.png|icon-512.png|icon-maskable-512.png|apple-touch-icon.png|manifest.webmanifest|logo-prisma.png|landing/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icon-64.png|icon-192.png|icon-512.png|icon-maskable-512.png|apple-touch-icon.png|manifest.webmanifest|sw.js|logo-prisma.png|landing/).*)",
   ],
 };

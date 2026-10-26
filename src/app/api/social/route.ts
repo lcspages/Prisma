@@ -14,6 +14,7 @@ const ACTIONS = new Set([
   "responder-batalha",
   "cancelar-batalha",
   "encerrar-batalha",
+  "manter-batalha",
 ]);
 
 async function run(request: Request, action: string, args: unknown) {

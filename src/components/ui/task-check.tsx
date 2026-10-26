@@ -38,6 +38,9 @@ export function TaskCheck({ checked, locked = false, label, onToggle, size = "md
       }}
       className={cn(
         "relative grid shrink-0 place-items-center border-[1.5px] transition-colors",
+        // Área de toque maior que o círculo (fácil de acertar no celular), sem mudar o visual.
+        // Cresce mais para cima, para baixo e para a esquerda; pouco para a direita (onde fica o título).
+        "before:absolute before:content-[''] before:-inset-y-3 before:-left-3 before:-right-1.5",
         s.box,
         shape === "circle" ? "rounded-full" : "rounded-[5px]",
         checked

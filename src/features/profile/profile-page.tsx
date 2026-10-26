@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { IconType } from "react-icons";
-import { LuChevronRight, LuCirclePlay, LuCrown, LuKeyRound, LuMail, LuPalette, LuSmartphone, LuUserRound } from "react-icons/lu";
+import { LuBell, LuChevronRight, LuCirclePlay, LuCrown, LuKeyRound, LuMail, LuPalette, LuSmartphone, LuUserRound } from "react-icons/lu";
 import type { Workspace } from "@/types/domain";
 import { COMPANY } from "@/lib/legal";
 import { updateDisplayName } from "@/lib/store/app-store";
 import { levelFromXp } from "@/features/gamification/lib/xp";
 import { openInstallGuide } from "@/features/install/install-guide";
+import { NotificationSettings } from "@/features/notifications/notification-settings";
 import { WorkspaceGate } from "@/components/layout/workspace-gate";
 import { ThemeSwitch } from "@/components/layout/theme-switch";
 import { LogoutButton } from "@/components/layout/logout-button";
@@ -85,6 +86,9 @@ function ProfileContent({ data }: { data: Workspace }) {
         <PlanCard account={account} failed={accountFailed} />
         <PasswordCard email={account?.email ?? null} />
         <div className="space-y-5">
+          <Card icon={LuBell} title="Lembretes" id="perfil-lembretes">
+            <NotificationSettings />
+          </Card>
           <Card icon={LuPalette} title="Aparência" id="perfil-tema">
             <ThemeSwitch />
             <p className="mt-2 text-meta text-ink-3">Claro, escuro ou igual ao do seu celular/computador.</p>

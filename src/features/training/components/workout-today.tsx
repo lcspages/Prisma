@@ -143,7 +143,9 @@ function WorkoutTimer({ groups }: { groups: string[] }) {
 
   const finish = () => {
     const total = watch.accumulated + (watch.startedAt ? Math.max(0, Date.now() - watch.startedAt) : 0);
-    const minutes = Math.round(total / 60_000);
+    const counted = Math.round(total / 60_000);
+    // Cronômetro esquecido ligado: salva no máximo 6 horas (o servidor também limita).
+    const minutes = Math.min(counted, 360);
     if (minutes < 1) {
       askConfirm({
         title: "Encerrar o treino?",
@@ -155,7 +157,10 @@ function WorkoutTimer({ groups }: { groups: string[] }) {
     }
     askConfirm({
       title: "Encerrar o treino?",
-      body: `${formatDuration(minutes)} de treino ficam salvos nos Relatórios.`,
+      body:
+        counted > minutes
+          ? `O cronômetro ficou ligado por ${formatDuration(counted)}. Ficam salvas 6h, o máximo de um treino.`
+          : `${formatDuration(minutes)} de treino ficam salvos nos Relatórios.`,
       actionLabel: "Encerrar treino",
       onConfirm: () => {
         if (!finishWorkout({ minutes, groups })) return;

@@ -9,7 +9,8 @@ import { ErrorAlert, PasswordField, postJson, SubmitButton, TextField } from "..
 function safeReturnPath(): string {
   try {
     const value = new URLSearchParams(window.location.search).get("voltar");
-    if (value && value.startsWith("/") && !value.startsWith("//") && !value.startsWith("/login")) return value;
+    // "/\\site.com" e "//site.com" levam a outro site em alguns navegadores: recusados.
+    if (value && value.startsWith("/") && !value.startsWith("//") && !value.includes("\\") && !value.startsWith("/login")) return value;
   } catch {
     /* ignora */
   }

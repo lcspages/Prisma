@@ -39,6 +39,10 @@ export interface Battle {
   mine: boolean;
   myStatus: "convidado" | "aceito";
   status: BattleStatus;
+  /** Pedidos para encerrar: quantos já pediram, quantos precisam e se eu pedi. */
+  endVotes?: number;
+  endNeeded?: number;
+  myEndVote?: boolean;
   players: Array<{ id: string; name: string; status: "convidado" | "aceito"; points: number | null }>;
 }
 
@@ -72,6 +76,10 @@ const subscribe = (l: () => void) => {
   return () => listeners.delete(l);
 };
 const initial: Store = { status: "idle", data: null, busy: false, tab: null };
+
+export function getSocialData() {
+  return store.data;
+}
 
 export function useSocial<T>(selector: (s: Store) => T): T {
   return useSyncExternalStore(subscribe, () => selector(store), () => selector(initial));
