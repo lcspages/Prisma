@@ -6,9 +6,9 @@ import { dismissToast, useAppStore, type Toast } from "@/lib/store/app-store";
 
 function ToastItem({ toast }: { toast: Toast }) {
   useEffect(() => {
-    const timer = setTimeout(() => dismissToast(toast.id), toast.tone === "success" ? 7000 : 4500);
+    const timer = setTimeout(() => dismissToast(toast.id), toast.duration ?? (toast.tone === "success" ? 7000 : 4500));
     return () => clearTimeout(timer);
-  }, [toast.id, toast.tone]);
+  }, [toast.id, toast.tone, toast.duration]);
 
   if (toast.tone === "success") {
     return (

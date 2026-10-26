@@ -28,6 +28,7 @@ function emptyWorkspace(): Workspace {
     exercises: [],
     exerciseLogs: [],
     trainingPlans: [],
+    workoutSessions: [],
   };
 }
 
@@ -121,6 +122,8 @@ export function parseOp(body: unknown): { name: OpName; args: unknown; ctx: OpCo
     if (!isCollection(args.collection)) throw new OpError("Coleção inválida.");
     // Pontos e sessões de foco só nascem das ações do app (concluir, marcar, focar, treinar).
     if (args.collection === "xpEvents" || args.collection === "focusSessions") throw new OpError("Coleção inválida.");
+    // Treinos só são criados pelo "Encerrar treino" (que limita a duração).
+    if (b.name === "upsert" && args.collection === "workoutSessions") throw new OpError("Coleção inválida.");
     const list = (b.name === "upsert" ? args.items : args.ids) as unknown;
     if (!Array.isArray(list) || list.length > MAX_ITEMS_PER_OP) throw new OpError("Pedido inválido.");
     if (b.name === "upsert" && !list.every((i) => i && typeof i === "object" && validId((i as { id?: unknown }).id))) {

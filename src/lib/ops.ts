@@ -18,6 +18,7 @@ import type {
   Profile,
   Task,
   Workspace,
+  WorkoutSession,
   XpEvent,
 } from "@/types/domain";
 import { spawnNext } from "@/features/tasks/lib/recurrence";
@@ -50,6 +51,7 @@ export const COLLECTIONS: CollectionKey[] = [
   "exercises",
   "exerciseLogs",
   "trainingPlans",
+  "workoutSessions",
 ];
 
 /** Aplica um Delta sem mutar o estado original. */
@@ -215,6 +217,31 @@ function logExercise(ws: Workspace, args: { log: ExerciseLog; xpId: ID }, ctx: O
   };
 }
 
+/** Máximo de um treino (o cronômetro esquecido ligado não vira 20 horas). */
+export const MAX_WORKOUT_MINUTES = 360;
+
+/** Encerra o treino: guarda dia e duração (a hora de término é a do servidor). */
+function finishWorkout(ws: Workspace, args: { session: WorkoutSession }, ctx: OpContext): Delta {
+  const s = args.session;
+  const raw = Math.round(Number(s?.minutes));
+  if (!s || typeof s.id !== "string" || !Number.isFinite(raw) || raw < 1) throw new Error("Treino muito curto.");
+  const minutes = Math.min(raw, MAX_WORKOUT_MINUTES);
+  const groups = (Array.isArray(s.groups) ? s.groups : [])
+    .filter((g): g is string => typeof g === "string")
+    .map((g) => g.slice(0, 40))
+    .slice(0, 12);
+  const endedAt = ctx.now;
+  const session: WorkoutSession = {
+    id: s.id,
+    date: ctx.today,
+    startedAt: new Date(Date.parse(endedAt) - minutes * 60_000).toISOString(),
+    endedAt,
+    minutes,
+    groups,
+  };
+  return { upsert: { workoutSessions: [session] } };
+}
+
 /** Exclui a pasta, as subpastas e tudo o que estiver dentro delas. */
 function deleteFolder(ws: Workspace, args: { id: ID }): Delta {
   const ids = new Set<ID>([args.id]);
@@ -276,6 +303,7 @@ export const ops = {
   setHabitDone,
   logFocus,
   logExercise,
+  finishWorkout,
   deleteFolder,
   deleteModule,
   updateProfile,

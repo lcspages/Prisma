@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LuCheck, LuChevronDown } from "react-icons/lu";
+import { LuCheck, LuChevronDown, LuX } from "react-icons/lu";
 import { cn } from "@/lib/cn";
 
 /**
@@ -80,15 +80,35 @@ export function GroupPicker({
       </button>
 
       {open && (
-        <div
-          role="listbox"
-          aria-label="Grupo muscular"
-          className="palette-in absolute inset-x-0 top-full z-30 mt-2 max-h-[60vh] overflow-y-auto sm:left-auto sm:w-[440px] rounded-3xl border border-line bg-surface p-4 shadow-modal scrollbar-thin"
-        >
-          <Section title="Músculos completos" hint="O grupo inteiro" tone="full" groups={full} value={value} onPick={pick} />
-          <div className="my-4 h-px bg-line" />
-          <Section title="Músculos divididos" hint="Partes de um grupo" tone="split" groups={split} value={value} onPick={pick} />
-        </div>
+        <>
+          {/* Celular: abre como painel de baixo, com a lista inteira rolando e por cima da barra do app */}
+          <div aria-hidden className="fixed inset-0 z-[60] bg-black/40 sm:hidden" onClick={() => setOpen(false)} />
+          <div
+            role="listbox"
+            aria-label="Grupo muscular"
+            className={cn(
+              "palette-in fixed inset-x-0 bottom-0 z-[61] flex max-h-[85dvh] flex-col rounded-t-3xl border border-line bg-surface shadow-modal",
+              "sm:absolute sm:bottom-auto sm:left-auto sm:right-0 sm:top-full sm:z-30 sm:mt-2 sm:max-h-[60vh] sm:w-[440px] sm:rounded-3xl",
+            )}
+          >
+            <div className="flex items-center justify-between px-4 pb-1 pt-3 sm:hidden">
+              <p className="font-semibold text-ink">Grupo muscular</p>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Fechar"
+                className="grid size-9 place-items-center rounded-xl text-ink-2 hover:bg-surface-2"
+              >
+                <LuX className="size-5" aria-hidden />
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] scrollbar-thin sm:pb-4">
+              <Section title="Músculos completos" hint="O grupo inteiro" tone="full" groups={full} value={value} onPick={pick} />
+              <div className="my-4 h-px bg-line" />
+              <Section title="Músculos divididos" hint="Partes de um grupo" tone="split" groups={split} value={value} onPick={pick} />
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

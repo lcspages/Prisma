@@ -51,13 +51,17 @@ export interface SocialState {
   battles: Battle[];
 }
 
+export type SocialTab = "batalhas" | "amigos" | "grupos";
+
 interface Store {
   status: "idle" | "loading" | "ready" | "error";
   data: SocialState | null;
   busy: boolean;
+  /** Aba pedida por fora (ex.: o aviso "Ver" de um pedido novo). */
+  tab: { value: SocialTab; seq: number } | null;
 }
 
-let store: Store = { status: "idle", data: null, busy: false };
+let store: Store = { status: "idle", data: null, busy: false, tab: null };
 const listeners = new Set<() => void>();
 const set = (patch: Partial<Store>) => {
   store = { ...store, ...patch };
@@ -67,22 +71,70 @@ const subscribe = (l: () => void) => {
   listeners.add(l);
   return () => listeners.delete(l);
 };
-const initial: Store = { status: "idle", data: null, busy: false };
+const initial: Store = { status: "idle", data: null, busy: false, tab: null };
 
 export function useSocial<T>(selector: (s: Store) => T): T {
   return useSyncExternalStore(subscribe, () => selector(store), () => selector(initial));
 }
 
-export async function loadSocial(opts: { silent?: boolean } = {}) {
+/** Abre uma aba da página Amigos (funciona mesmo se a página já estiver aberta). */
+export function requestSocialTab(value: SocialTab) {
+  set({ tab: { value, seq: (store.tab?.seq ?? 0) + 1 } });
+}
+
+/* ---------------------------------------------------------------- novidades */
+
+export interface SocialNews {
+  kind: "amigo" | "grupo" | "batalha";
+  text: string;
+}
+
+/** Itens que esperam resposta, com uma chave para saber o que é novo. */
+function waiting(data: SocialState): Map<string, SocialNews> {
+  const out = new Map<string, SocialNews>();
+  for (const r of data.incoming) out.set(`a:${r.id}`, { kind: "amigo", text: `${r.name} quer ser seu amigo` });
+  for (const g of data.groups)
+    if (g.status === "convidado") out.set(`g:${g.id}`, { kind: "grupo", text: `Convite para o grupo ${g.name}` });
+  for (const b of data.battles)
+    if (b.myStatus === "convidado" && (b.status === "pendente" || b.status === "ativa"))
+      out.set(`b:${b.id}`, { kind: "batalha", text: `${b.createdBy.name} desafiou ${b.group ? `o grupo ${b.group.name}` : "você"}` });
+  return out;
+}
+
+let newsListener: ((news: SocialNews[]) => void) | null = null;
+/** O AppShell registra aqui quem mostra o aviso de novidades. */
+export function onSocialNews(fn: ((news: SocialNews[]) => void) | null) {
+  newsListener = fn;
+}
+
+function receive(next: SocialState) {
+  const prev = store.data;
+  set({ status: "ready", data: next });
+  if (!prev || !newsListener) return;
+  const before = waiting(prev);
+  const news = [...waiting(next)].filter(([key]) => !before.has(key)).map(([, n]) => n);
+  if (news.length) newsListener(news);
+}
+
+let inflight: Promise<void> | null = null;
+
+export function loadSocial(opts: { silent?: boolean } = {}): Promise<void> {
   if (!opts.silent) set({ status: store.data ? "ready" : "loading" });
-  try {
-    const res = await fetch("/api/social", { cache: "no-store" });
-    const body = (await res.json().catch(() => null)) as { state?: SocialState } | null;
-    if (!res.ok || !body?.state) throw new Error();
-    set({ status: "ready", data: body.state });
-  } catch {
-    if (!opts.silent || !store.data) set({ status: "error" });
-  }
+  // Evita duas consultas ao mesmo tempo (o relógio e a página podem pedir juntos).
+  if (inflight) return inflight;
+  inflight = (async () => {
+    try {
+      const res = await fetch("/api/social", { cache: "no-store" });
+      const body = (await res.json().catch(() => null)) as { state?: SocialState } | null;
+      if (!res.ok || !body?.state) throw new Error();
+      receive(body.state);
+    } catch {
+      if (!opts.silent || !store.data) set({ status: "error" });
+    } finally {
+      inflight = null;
+    }
+  })();
+  return inflight;
 }
 
 /** Executa uma ação. Devolve a mensagem de erro (ou null se deu certo). */

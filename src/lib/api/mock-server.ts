@@ -75,7 +75,7 @@ function migrate(ws: Workspace): Workspace {
   });
   // Interrupções deixaram de existir: o que foi anotado continua, como ideia.
   const inbox = ws.inbox.map((i) => ({ ...i, kind: "idea" as const }));
-  return { ...ws, modules, habits, exercises, trainingPlans, inbox };
+  return { ...ws, modules, habits, exercises, trainingPlans, inbox, workoutSessions: ws.workoutSessions ?? [] };
 }
 
 function getDb(): Workspace {

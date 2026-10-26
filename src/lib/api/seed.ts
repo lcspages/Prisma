@@ -15,6 +15,7 @@ import type {
   Task,
   TrainingPlan,
   Workspace,
+  WorkoutSession,
   XpEvent,
 } from "@/types/domain";
 import { ALL_DAYS, TRAINING_PLAN_ID } from "@/types/domain";
@@ -440,6 +441,7 @@ export function createSeed(now = new Date()): Workspace {
   ];
 
   const exerciseLogs: ExerciseLog[] = [];
+  const workoutSessions: WorkoutSession[] = [];
   const startLoads: Record<string, number> = {
     "e-supino": 24, "e-crucifixo": 10, "e-desenv": 14, "e-lateral": 6, "e-puxada": 40, "e-remada": 30, "e-agacha": 50, "e-leg": 120,
   };
@@ -470,6 +472,17 @@ export function createSeed(now = new Date()): Workspace {
         });
       });
     exerciseLogs.push({ id: `log-cardio-${back}`, exerciseId: "e-esteira", date: toISODate(date), minutes: 15, distanceKm: 2 + progress * 0.1 });
+    const minutes = 50 + ((back * 7) % 25);
+    const end = new Date(date);
+    end.setHours(19, minutes % 60, 0, 0);
+    workoutSessions.push({
+      id: `treino-${back}`,
+      date: toISODate(date),
+      startedAt: iso(new Date(end.getTime() - minutes * 60_000)),
+      endedAt: iso(end),
+      minutes,
+      groups,
+    });
   }
 
   const trainingPlans: TrainingPlan[] = [
@@ -507,5 +520,6 @@ export function createSeed(now = new Date()): Workspace {
     exercises,
     exerciseLogs,
     trainingPlans,
+    workoutSessions,
   };
 }

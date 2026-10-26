@@ -13,6 +13,7 @@ const ACTIONS = new Set([
   "criar-batalha",
   "responder-batalha",
   "cancelar-batalha",
+  "encerrar-batalha",
 ]);
 
 async function run(request: Request, action: string, args: unknown) {

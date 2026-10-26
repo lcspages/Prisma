@@ -6,6 +6,8 @@ export interface TabItem<T extends string> {
   value: T;
   label: string;
   count?: number;
+  /** Mostra o número em destaque (algo esperando resposta). */
+  alert?: boolean;
 }
 
 /** Abas simples com navegação por setas. */
@@ -50,7 +52,14 @@ export function Tabs<T extends string>({
             )}
           >
             {t.label}
-            {typeof t.count === "number" && <span className="tabular text-meta text-ink-3">{t.count}</span>}
+            {typeof t.count === "number" &&
+              (t.alert ? (
+                <span className="tabular grid min-w-5 place-items-center rounded-full bg-accent px-1.5 text-[11px] font-semibold leading-5 text-on-accent">
+                  {t.count}
+                </span>
+              ) : (
+                <span className="tabular text-meta text-ink-3">{t.count}</span>
+              ))}
             {active && <span aria-hidden className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary" />}
           </button>
         );

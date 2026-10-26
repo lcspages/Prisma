@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { LuCheck, LuMusic, LuPause, LuPlay, LuPlus, LuRotateCcw, LuTrash2, LuTrophy } from "react-icons/lu";
+import { LuCheck, LuFlag, LuMusic, LuPause, LuPlay, LuPlus, LuRotateCcw, LuTrash2, LuTrophy } from "react-icons/lu";
+import { useRouter } from "next/navigation";
 import type { Exercise, TrainingPlan, Workspace } from "@/types/domain";
-import { logExercise, saveTrainingPlan, toggleFinisher } from "@/lib/store/app-store";
-import { addDaysISO, formatTimer, parseISODate, toISODate, WEEKDAY_LONG, WEEKDAY_SHORT } from "@/lib/dates";
+import { askConfirm, finishWorkout, logExercise, pushToast, saveTrainingPlan, toggleFinisher } from "@/lib/store/app-store";
+import { addDaysISO, formatDuration, formatTimer, parseISODate, toISODate, WEEKDAY_LONG, WEEKDAY_SHORT } from "@/lib/dates";
 import { newId } from "@/lib/id";
 import { useTick } from "@/lib/hooks/use-tick";
 import { cn } from "@/lib/cn";
@@ -38,6 +39,7 @@ export function WorkoutToday({
   const exercises = data.exercises;
   const strength = exercises.filter((e) => e.kind === "strength" && groups.includes(e.group));
   const cardio = exercises.filter((e) => e.kind === "cardio");
+  const doneToday = data.workoutSessions.filter((w) => w.date === today);
 
   return (
     <div className="space-y-6">
@@ -65,11 +67,18 @@ export function WorkoutToday({
           </div>
           {isToday && groups.length > 0 && (
             <div className="flex items-center gap-2">
-              <WorkoutTimer />
+              <WorkoutTimer groups={groups} />
               <MusicMenu plan={plan} onEditPlaylist={onEditPlaylist} />
             </div>
           )}
         </div>
+
+        {isToday && doneToday.length > 0 && (
+          <p className="mt-3 flex items-center gap-1.5 text-meta font-medium text-primary-ink">
+            <LuCheck className="size-4" aria-hidden />
+            Treino encerrado hoje: {formatDuration(doneToday.reduce((sum, w) => sum + w.minutes, 0))}
+          </p>
+        )}
 
         {groups.length === 0 ? (
           <p className="mt-3 text-ink-2">Nenhum grupo muscular neste dia. Monte a divisão na aba Divisão semanal.</p>
@@ -116,8 +125,9 @@ function readStopwatch(): Stopwatch {
   return { startedAt: null, accumulated: 0 };
 }
 
-/** Cronômetro do treino. Só conta o tempo; continua contando se você trocar de aba. */
-function WorkoutTimer() {
+/** Cronômetro do treino. Continua contando se você trocar de aba; "Encerrar" salva a duração. */
+function WorkoutTimer({ groups }: { groups: string[] }) {
+  const router = useRouter();
   const [watch, setWatch] = useState<Stopwatch>({ startedAt: null, accumulated: 0 });
   useEffect(() => setWatch(readStopwatch()), []);
   const update = (next: Stopwatch) => {
@@ -130,6 +140,35 @@ function WorkoutTimer() {
   };
   const now = useTick(watch.startedAt !== null);
   const elapsed = watch.accumulated + (watch.startedAt ? Math.max(0, now - watch.startedAt) : 0);
+
+  const finish = () => {
+    const total = watch.accumulated + (watch.startedAt ? Math.max(0, Date.now() - watch.startedAt) : 0);
+    const minutes = Math.round(total / 60_000);
+    if (minutes < 1) {
+      askConfirm({
+        title: "Encerrar o treino?",
+        body: "O treino teve menos de 1 minuto e não será salvo nos relatórios.",
+        actionLabel: "Encerrar",
+        onConfirm: () => update({ startedAt: null, accumulated: 0 }),
+      });
+      return;
+    }
+    askConfirm({
+      title: "Encerrar o treino?",
+      body: `${formatDuration(minutes)} de treino ficam salvos nos Relatórios.`,
+      actionLabel: "Encerrar treino",
+      onConfirm: () => {
+        if (!finishWorkout({ minutes, groups })) return;
+        update({ startedAt: null, accumulated: 0 });
+        pushToast({
+          message: `Treino encerrado: ${formatDuration(minutes)}. O resumo fica em Relatórios.`,
+          actionLabel: "Ver",
+          duration: 8000,
+          onAction: () => router.push("/relatorios#treino"),
+        });
+      },
+    });
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -145,8 +184,14 @@ function WorkoutTimer() {
           {elapsed > 0 ? "Continuar" : "Iniciar treino"}
         </Button>
       )}
+      {elapsed > 0 && (
+        <Button variant={watch.startedAt ? "secondary" : "primary"} onClick={finish}>
+          <LuFlag className="size-4" aria-hidden />
+          Encerrar
+        </Button>
+      )}
       {elapsed > 0 && !watch.startedAt && (
-        <Button variant="ghost" onClick={() => update({ startedAt: null, accumulated: 0 })} aria-label="Zerar cronômetro">
+        <Button variant="ghost" onClick={() => update({ startedAt: null, accumulated: 0 })} aria-label="Zerar cronômetro" title="Zerar sem salvar">
           <LuRotateCcw className="size-4" aria-hidden />
         </Button>
       )}

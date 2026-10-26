@@ -6,6 +6,7 @@ import {
   LuChevronDown,
   LuCopy,
   LuCrown,
+  LuFlag,
   LuShare2,
   LuSwords,
   LuTrophy,
@@ -22,9 +23,9 @@ import { Chip, Input } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState, Page, PageHeader, ProgressBar } from "@/components/ui/page";
 import { Tabs } from "@/components/ui/tabs";
-import { loadSocial, socialAction, useSocial, type Battle, type Group, type SocialState } from "./social-store";
+import { loadSocial, socialAction, useSocial, type Battle, type Group, type SocialState, type SocialTab } from "./social-store";
 
-type Tab = "batalhas" | "amigos" | "grupos";
+type Tab = SocialTab;
 const DAYS = [1, 3, 7, 14, 30];
 
 /** Mostra o erro da ação (ou a mensagem de sucesso). */
@@ -51,8 +52,22 @@ export function SocialPage() {
       setCodeInput(code.toUpperCase().slice(0, 6));
       setTab("amigos");
     }
-    // A atualização automática (a cada 20 s) fica no AppShell.
   }, []);
+
+  // Com a página aberta, confere novidades a cada 8 segundos (no resto do app, a cada 20).
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_DATA_SOURCE === "mock") return;
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") void loadSocial({ silent: true });
+    }, 8_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  // O aviso "Ver" de uma novidade abre a aba certa, mesmo com a página já aberta.
+  const requested = useSocial((s) => s.tab);
+  useEffect(() => {
+    if (requested) setTab(requested.value);
+  }, [requested]);
 
   if (!data) {
     return (
@@ -85,6 +100,13 @@ export function SocialPage() {
     <Page>
       <PageHeader title="Amigos" description="Desafie amigos em batalhas de pontos. Quem fizer mais no período vence." />
 
+      <PendingBanner
+        friends={data.incoming.length}
+        groups={groupInvites}
+        battles={battleInvites}
+        onOpen={setTab}
+      />
+
       <MyCode code={data.me.code} />
 
       <div className="mt-6">
@@ -93,9 +115,9 @@ export function SocialPage() {
           value={tab}
           onChange={setTab}
           items={[
-            { value: "batalhas", label: "Batalhas", count: battleInvites || undefined },
-            { value: "amigos", label: "Amigos", count: data.incoming.length || undefined },
-            { value: "grupos", label: "Grupos", count: groupInvites || undefined },
+            { value: "batalhas", label: "Batalhas", count: battleInvites || undefined, alert: true },
+            { value: "amigos", label: "Amigos", count: data.incoming.length || undefined, alert: true },
+            { value: "grupos", label: "Grupos", count: groupInvites || undefined, alert: true },
           ]}
         />
       </div>
@@ -123,6 +145,40 @@ export function SocialPage() {
       )}
       {newGroup && <GroupDialog data={data} onClose={() => setNewGroup(false)} />}
     </Page>
+  );
+}
+
+/* ---------------------------------------------------------------- avisos */
+
+/** Tudo o que espera resposta, em destaque no topo (qualquer que seja a aba aberta). */
+function PendingBanner({
+  friends,
+  groups,
+  battles,
+  onOpen,
+}: {
+  friends: number;
+  groups: number;
+  battles: number;
+  onOpen: (tab: Tab) => void;
+}) {
+  const items = [
+    battles > 0 && { tab: "batalhas" as const, text: battles === 1 ? "1 desafio para você" : `${battles} desafios para você` },
+    friends > 0 && { tab: "amigos" as const, text: friends === 1 ? "1 pedido de amizade" : `${friends} pedidos de amizade` },
+    groups > 0 && { tab: "grupos" as const, text: groups === 1 ? "1 convite de grupo" : `${groups} convites de grupo` },
+  ].filter(Boolean) as Array<{ tab: Tab; text: string }>;
+  if (!items.length) return null;
+  return (
+    <section aria-live="polite" aria-label="Esperando sua resposta" className="mb-4 rounded-3xl border-2 border-accent bg-accent-soft p-4">
+      <p className="font-semibold text-ink">Esperando sua resposta</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {items.map((i) => (
+          <Button key={i.tab} size="sm" variant="primary" onClick={() => onOpen(i.tab)}>
+            {i.text}
+          </Button>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -334,6 +390,27 @@ function BattleCard({ battle: b, meId }: { battle: Battle; meId: string }) {
           </li>
         ))}
       </ol>
+
+      {b.status === "ativa" && b.mine && (
+        <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3">
+          <p className="text-meta text-ink-3">Vence quem tiver mais pontos ao encerrar.</p>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() =>
+              askConfirm({
+                title: "Encerrar a batalha agora?",
+                body: "O placar vale até este momento e o vencedor é definido na hora. Não dá para desfazer.",
+                actionLabel: "Encerrar",
+                onConfirm: () => void act("encerrar-batalha", { battle: b.id }, "Batalha encerrada"),
+              })
+            }
+          >
+            <LuFlag className="size-4" aria-hidden />
+            Encerrar
+          </Button>
+        </div>
+      )}
 
       {b.status === "pendente" && b.mine && (
         <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3">

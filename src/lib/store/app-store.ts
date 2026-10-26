@@ -50,6 +50,8 @@ export interface Toast {
   xp?: number;
   actionLabel?: string;
   onAction?: () => void;
+  /** Tempo na tela em ms (padrão: 4,5 s; 7 s para "success"). */
+  duration?: number;
 }
 
 export interface ConfirmRequest {
@@ -529,6 +531,26 @@ export function toggleFinisher(planId: ID, date: ISODate, finisherId: ID) {
 
 export function logExercise(log: ExerciseLog) {
   run("logExercise", { log, xpId: newId() });
+}
+
+/** Encerra o treino e guarda a duração (usado pelos relatórios). */
+export function finishWorkout(input: { minutes: number; groups: string[] }) {
+  const now = new Date();
+  const minutes = Math.round(input.minutes);
+  return run("finishWorkout", {
+    session: {
+      id: newId(),
+      date: toISODate(now),
+      startedAt: new Date(now.getTime() - minutes * 60_000).toISOString(),
+      endedAt: now.toISOString(),
+      minutes,
+      groups: input.groups,
+    },
+  });
+}
+
+export function deleteWorkoutSession(id: ID) {
+  run("remove", { collection: "workoutSessions", ids: [id] });
 }
 
 export function saveExercise(input: { name: string; group: string; kind: "strength" | "cardio" }) {

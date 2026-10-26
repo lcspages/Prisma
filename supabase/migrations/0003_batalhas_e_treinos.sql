@@ -1,9 +1,16 @@
--- Prisma: categorias Alimentação e Sono nas batalhas.
--- Mesma lógica de antes; só a lista de categorias aceitas mudou.
+-- Prisma: categorias Alimentação e Sono, encerrar batalha e sessões de treino.
+--   * Batalhas aceitam as categorias 'alimentacao' e 'sono'.
+--   * Nova ação 'encerrar-batalha': quem criou encerra agora (o placar vale até este momento).
+--   * Nova coleção 'workoutSessions' (treinos encerrados: data e duração).
 
 alter table public.battles drop constraint if exists battles_category_check;
 alter table public.battles add constraint battles_category_check
   check (category in ('geral', 'estudo', 'trabalho', 'treino', 'alimentacao', 'sono', 'pessoal'));
+
+alter table public.entities drop constraint if exists entities_collection_check;
+alter table public.entities add constraint entities_collection_check check (collection in (
+  'profile', 'modules', 'folders', 'tasks', 'notes', 'goals', 'habits', 'inbox',
+  'focusSessions', 'xpEvents', 'exercises', 'exerciseLogs', 'trainingPlans', 'workoutSessions'));
 
 create or replace function public.prisma_social(p_secret text, p_user uuid, p_action text, p_args jsonb) returns jsonb
 language plpgsql security definer set search_path = '' as $$
@@ -154,6 +161,13 @@ begin
        where b.id = v_battle and b.created_by = p_user and b.ends_at > now()
          and not exists (select 1 from public.battle_players o where o.battle_id = b.id and o.user_id <> p_user and o.status = 'aceito');
       if not found then v_err := 'Só dá para cancelar antes de alguém aceitar.'; exit acao; end if;
+
+    when 'encerrar-batalha' then
+      v_battle := (v_args ->> 'battle')::uuid;
+      update public.battles b set ends_at = greatest(now(), b.starts_at + interval '1 second')
+       where b.id = v_battle and b.created_by = p_user and not b.canceled and b.ends_at > now()
+         and exists (select 1 from public.battle_players o where o.battle_id = b.id and o.user_id <> p_user and o.status = 'aceito');
+      if not found then v_err := 'Só quem criou pode encerrar uma batalha em andamento.'; exit acao; end if;
 
     else
       v_err := 'Ação desconhecida.';

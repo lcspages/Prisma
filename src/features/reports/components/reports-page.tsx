@@ -11,14 +11,29 @@ import { Page, PageHeader, ProgressBar } from "@/components/ui/page";
 import { ContributionHeatmap } from "./contribution-heatmap";
 import { EnergyChart, energyInsight, peakWindow } from "./energy-chart";
 import { summarizeWeek, WeeklyReview } from "./weekly-review";
+import { TrainingReport } from "./training-report";
 
 export function ReportsPage() {
   return <WorkspaceGate>{(data, now) => <ReportsContent data={data} now={now} />}</WorkspaceGate>;
 }
 
-function Card({ id, title, aside, children, className }: { id: string; title: string; aside?: React.ReactNode; children: React.ReactNode; className?: string }) {
+function Card({
+  id,
+  title,
+  aside,
+  children,
+  className,
+  anchor,
+}: {
+  id: string;
+  title: string;
+  aside?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  anchor?: string;
+}) {
   return (
-    <section aria-labelledby={id} className={`rounded-3xl border border-line bg-surface p-5 md:p-6 ${className ?? ""}`}>
+    <section id={anchor} aria-labelledby={id} className={`scroll-mt-20 rounded-3xl border border-line bg-surface p-5 md:p-6 ${className ?? ""}`}>
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
         <h2 id={id} className="text-lead font-semibold text-ink">
           {title}
@@ -44,7 +59,7 @@ function ReportsContent({ data, now }: { data: Workspace; now: Date }) {
 
   return (
     <Page>
-      <PageHeader title="Relatórios" description="Consistência, horários em que você rende mais e a revisão da semana." />
+      <PageHeader title="Relatórios" description="Consistência, treino, horários em que você rende mais e a revisão da semana." />
 
       <div className="grid gap-5 md:grid-cols-[1fr_1.4fr]">
         <Card id="r-level" title={`Nível ${level.level}`} aside={`${level.current} / ${level.needed} XP`}>
@@ -82,6 +97,10 @@ function ReportsContent({ data, now }: { data: Workspace; now: Date }) {
         }
       >
         <ContributionHeatmap days={days} />
+      </Card>
+
+      <Card id="r-treino" anchor="treino" title="Treino" className="mt-5" aside="Esta semana, de segunda a domingo">
+        <TrainingReport data={data} now={now} />
       </Card>
 
       <Card id="r-energy" title="Picos de energia" className="mt-5" aside="Minutos de foco por hora, últimos 30 dias">

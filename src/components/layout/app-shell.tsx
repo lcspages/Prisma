@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { getState, loadWorkspace, restoreFocus, setPaletteOpen } from "@/lib/store/app-store";
+import { useRouter } from "next/navigation";
+import { getState, loadWorkspace, pushToast, restoreFocus, setPaletteOpen } from "@/lib/store/app-store";
 import { FocusEngine } from "@/features/focus/components/focus-engine";
 import { InstallGuide } from "@/features/install/install-guide";
-import { loadSocial } from "@/features/social/social-store";
+import { loadSocial, onSocialNews, requestSocialTab, type SocialTab } from "@/features/social/social-store";
 import { CommandPalette } from "./command-palette";
 import { GlobalDialogs } from "./global-dialogs";
 import { MobileNav } from "./mobile-nav";
@@ -12,7 +13,10 @@ import { Sidebar } from "./sidebar";
 import { Toaster } from "./toaster";
 import { MobileTopbar, Topbar } from "./topbar";
 
+const NEWS_TAB: Record<"amigo" | "grupo" | "batalha", SocialTab> = { amigo: "amigos", grupo: "grupos", batalha: "batalhas" };
+
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   useEffect(() => {
     if (getState().status === "idle") {
       restoreFocus();
@@ -27,18 +31,33 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     const refresh = () => {
       if (document.visibilityState === "visible") void loadSocial({ silent: true });
     };
+    // Pedido, convite ou desafio novo: aviso na tela, em qualquer página.
+    onSocialNews((news) => {
+      const first = news[0];
+      pushToast({
+        title: news.length > 1 ? `${news.length} novidades em Amigos` : "Novidade em Amigos",
+        message: news.length > 1 ? news.map((n) => n.text).join(" · ") : first.text,
+        actionLabel: "Ver",
+        duration: 10_000,
+        onAction: () => {
+          requestSocialTab(NEWS_TAB[first.kind]);
+          router.push("/amigos");
+        },
+      });
+    });
     refresh();
     const timer = window.setInterval(refresh, 20_000);
     document.addEventListener("visibilitychange", refresh);
     window.addEventListener("focus", refresh);
     window.addEventListener("online", refresh);
     return () => {
+      onSocialNews(null);
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", refresh);
       window.removeEventListener("focus", refresh);
       window.removeEventListener("online", refresh);
     };
-  }, []);
+  }, [router]);
 
   // Avisa antes de fechar a aba com alterações ainda indo para a nuvem.
   useEffect(() => {

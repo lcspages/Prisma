@@ -176,6 +176,19 @@ export interface ExerciseLog {
   distanceKm?: number | null;
 }
 
+/** Treino encerrado pelo botão "Encerrar treino". */
+export interface WorkoutSession {
+  id: ID;
+  /** Dia do treino (data local) */
+  date: ISODate;
+  startedAt: string;
+  endedAt: string;
+  /** Duração em minutos (sem as pausas) */
+  minutes: number;
+  /** Grupos musculares do dia */
+  groups: string[];
+}
+
 export interface Finisher {
   id: ID;
   text: string;
@@ -208,6 +221,7 @@ export interface Workspace {
   exercises: Exercise[];
   exerciseLogs: ExerciseLog[];
   trainingPlans: TrainingPlan[];
+  workoutSessions: WorkoutSession[];
 }
 
 /** Coleções que podem ser salvas/excluídas de forma genérica. */
