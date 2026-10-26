@@ -5,7 +5,7 @@
 
 export const PRICES = {
   mensal: "R$ 25",
-  vitalicio: "R$ 97",
+  vitalicio: "R$ 100",
 };
 
 /**
