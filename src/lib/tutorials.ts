@@ -38,6 +38,22 @@ export const TUTORIALS: Tutorial[] = [
   { id: "modulos", href: "/modulos", title: "Módulos", description: "Organizar cada área da vida com tarefas, anotações e metas.", src: "", vertical: true },
   { id: "relatorios", href: "/relatorios", title: "Relatórios", description: "Ver sua evolução, nível e revisão da semana.", src: "", vertical: true },
   {
+    id: "amigos",
+    href: "/amigos",
+    title: "Amigos",
+    description: "Adicionar amigos, criar grupos e disputar batalhas por pontos.",
+    src: "",
+    vertical: true,
+  },
+  {
+    id: "lembretes",
+    href: "/perfil",
+    title: "Lembretes",
+    description: "Ativar os avisos da manhã e da noite no celular.",
+    src: "",
+    vertical: true,
+  },
+  {
     id: "caixa-de-entrada",
     href: "/caixa-de-entrada",
     title: "Caixa de entrada",
