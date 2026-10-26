@@ -96,20 +96,37 @@ export function TutorialsPage() {
         </a>
       </div>
 
-      <Modal open={Boolean(playing)} onClose={() => setPlaying(null)} title={playing?.title ?? ""} description={playing?.description} size="md">
+      <Modal open={Boolean(playing)} onClose={() => setPlaying(null)} title={playing?.title ?? ""} description={playing?.description} size={playing?.srcDesktop ? "lg" : "md"}>
         {playing && <TutorialVideo tutorial={playing} />}
       </Modal>
     </Page>
   );
 }
 
+/** Computador (tela larga): usa o vídeo deitado, quando o tutorial tem um. */
+function useWideScreen() {
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setWide(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return wide;
+}
+
 function TutorialVideo({ tutorial }: { tutorial: Tutorial }) {
-  const embed = youtubeEmbed(tutorial.src);
+  const wide = useWideScreen();
+  const desktop = wide && Boolean(tutorial.srcDesktop);
+  const src = desktop ? (tutorial.srcDesktop as string) : tutorial.src;
+  const vertical = desktop ? false : tutorial.vertical;
+  const embed = youtubeEmbed(src);
   return (
     <div
       className={cn(
         "relative mx-auto overflow-hidden rounded-2xl bg-[#141414]",
-        tutorial.vertical ? "aspect-[9/16] w-[min(100%,calc((92dvh-180px)*0.5625))]" : "aspect-video w-full",
+        vertical ? "aspect-[9/16] w-[min(100%,calc((92dvh-180px)*0.5625))]" : "aspect-video w-full",
       )}
     >
       {embed ? (
@@ -121,7 +138,7 @@ function TutorialVideo({ tutorial }: { tutorial: Tutorial }) {
           className="absolute inset-0 size-full"
         />
       ) : (
-        <video src={tutorial.src} controls playsInline autoPlay className="absolute inset-0 size-full object-contain">
+        <video key={src} src={src} controls playsInline autoPlay className="absolute inset-0 size-full object-contain">
           Seu navegador não conseguiu abrir o vídeo.
         </video>
       )}

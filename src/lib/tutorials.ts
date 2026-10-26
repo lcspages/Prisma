@@ -4,6 +4,7 @@
  * Para publicar um vídeo, preencha `src` com UM destes:
  *   - um link do YouTube (normal, curto ou de Shorts; pode ser "não listado")
  *   - um arquivo na pasta public, por exemplo "/tutoriais/habitos.mp4"
+ * `srcDesktop` (opcional) é o vídeo deitado para quem usa computador; `src` fica para o celular.
  * `vertical: true` para vídeo em pé (formato celular), false para deitado.
  *
  * Enquanto `src` estiver vazio, o card aparece como “Em breve”.
@@ -16,6 +17,8 @@ export interface Tutorial {
   title: string;
   description: string;
   src: string;
+  /** Versão para computador (vídeo deitado). Se vazio, todos veem o mesmo vídeo de `src`. */
+  srcDesktop?: string;
   vertical: boolean;
 }
 
@@ -25,7 +28,8 @@ export const TUTORIALS: Tutorial[] = [
     href: null,
     title: "Comece por aqui",
     description: "Uma volta rápida pelo Prisma e por onde começar.",
-    src: "",
+    src: "/tutoriais/comece-por-aqui-celular.mp4",
+    srcDesktop: "/tutoriais/comece-por-aqui-computador.mp4",
     vertical: true,
   },
   { id: "hoje", href: "/hoje", title: "Hoje", description: "O que fazer agora, seu resumo do dia e a próxima tarefa.", src: "", vertical: true },
