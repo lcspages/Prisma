@@ -3,8 +3,8 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { LuCheck, LuFlag, LuMusic, LuPause, LuPlay, LuPlus, LuRotateCcw, LuTrash2, LuTrophy } from "react-icons/lu";
 import { useRouter } from "next/navigation";
-import type { Exercise, TrainingPlan, Workspace } from "@/types/domain";
-import { askConfirm, finishWorkout, logExercise, pushToast, saveTrainingPlan, toggleFinisher } from "@/lib/store/app-store";
+import type { Exercise, TrainingPlan, WorkoutSession, Workspace } from "@/types/domain";
+import { askConfirm, deleteWorkoutSession, finishWorkout, logExercise, pushToast, saveTrainingPlan, toggleFinisher } from "@/lib/store/app-store";
 import { addDaysISO, formatDuration, formatTimer, parseISODate, toISODate, WEEKDAY_LONG, WEEKDAY_SHORT } from "@/lib/dates";
 import { newId } from "@/lib/id";
 import { useTick } from "@/lib/hooks/use-tick";
@@ -14,9 +14,10 @@ import { Chip } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/page";
 import { TaskCheck } from "@/components/ui/task-check";
 import { bestBefore, formatNumber, logOn, previousLog } from "../lib/records";
+import { elapsedOf, lastFinished, rest, REOPEN_WINDOW_MS, stopwatch } from "../lib/workout-clock";
+import { RestTimer } from "./rest-timer";
 
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
-const STOPWATCH_KEY = "prisma:workout-stopwatch";
 
 /** Treino do dia: exercícios da divisão, carga e repetições, cardio, finalização e playlist. */
 export function WorkoutToday({
@@ -40,6 +41,8 @@ export function WorkoutToday({
   const strength = exercises.filter((e) => e.kind === "strength" && groups.includes(e.group));
   const cardio = exercises.filter((e) => e.kind === "cardio");
   const doneToday = data.workoutSessions.filter((w) => w.date === today);
+  const watch = stopwatch.use();
+  const started = watch.startedAt !== null || watch.accumulated > 0;
 
   return (
     <div className="space-y-6">
@@ -80,6 +83,10 @@ export function WorkoutToday({
           </p>
         )}
 
+        {isToday && groups.length > 0 && !started && <ReopenWorkout sessions={doneToday} />}
+
+        {isToday && groups.length > 0 && started && <RestTimer />}
+
         {groups.length === 0 ? (
           <p className="mt-3 text-ink-2">Nenhum grupo muscular neste dia. Monte a divisão na aba Divisão semanal.</p>
         ) : strength.length === 0 ? (
@@ -110,39 +117,20 @@ export function WorkoutToday({
   );
 }
 
-interface Stopwatch {
-  startedAt: number | null;
-  accumulated: number;
-}
-
-function readStopwatch(): Stopwatch {
-  try {
-    const raw = localStorage.getItem(STOPWATCH_KEY);
-    if (raw) return JSON.parse(raw) as Stopwatch;
-  } catch {
-    /* sem armazenamento */
-  }
-  return { startedAt: null, accumulated: 0 };
-}
-
 /** Cronômetro do treino. Continua contando se você trocar de aba; "Encerrar" salva a duração. */
 function WorkoutTimer({ groups }: { groups: string[] }) {
   const router = useRouter();
-  const [watch, setWatch] = useState<Stopwatch>({ startedAt: null, accumulated: 0 });
-  useEffect(() => setWatch(readStopwatch()), []);
-  const update = (next: Stopwatch) => {
-    setWatch(next);
-    try {
-      localStorage.setItem(STOPWATCH_KEY, JSON.stringify(next));
-    } catch {
-      /* sem armazenamento */
-    }
+  const watch = stopwatch.use();
+  const update = stopwatch.set;
+  const reset = () => {
+    update({ startedAt: null, accumulated: 0 });
+    rest.set({ ...rest.get(), endsAt: null, total: 0 });
   };
   const now = useTick(watch.startedAt !== null);
-  const elapsed = watch.accumulated + (watch.startedAt ? Math.max(0, now - watch.startedAt) : 0);
+  const elapsed = elapsedOf(watch, now);
 
   const finish = () => {
-    const total = watch.accumulated + (watch.startedAt ? Math.max(0, Date.now() - watch.startedAt) : 0);
+    const total = elapsedOf(watch);
     const counted = Math.round(total / 60_000);
     // Cronômetro esquecido ligado: salva no máximo 6 horas (o servidor também limita).
     const minutes = Math.min(counted, 360);
@@ -151,7 +139,7 @@ function WorkoutTimer({ groups }: { groups: string[] }) {
         title: "Encerrar o treino?",
         body: "O treino teve menos de 1 minuto e não será salvo nos relatórios.",
         actionLabel: "Encerrar",
-        onConfirm: () => update({ startedAt: null, accumulated: 0 }),
+        onConfirm: reset,
       });
       return;
     }
@@ -163,10 +151,12 @@ function WorkoutTimer({ groups }: { groups: string[] }) {
           : `${formatDuration(minutes)} de treino ficam salvos nos Relatórios.`,
       actionLabel: "Encerrar treino",
       onConfirm: () => {
-        if (!finishWorkout({ minutes, groups })) return;
-        update({ startedAt: null, accumulated: 0 });
+        const sessionId = finishWorkout({ minutes, groups });
+        if (!sessionId) return;
+        lastFinished.set({ sessionId, ms: Math.min(total, minutes * 60_000 + 59_000) });
+        reset();
         pushToast({
-          message: `Treino encerrado: ${formatDuration(minutes)}. O resumo fica em Relatórios.`,
+          message: `Treino encerrado: ${formatDuration(minutes)}. Dá para reabrir por 1 hora. O resumo fica em Relatórios.`,
           actionLabel: "Ver",
           duration: 8000,
           onAction: () => router.push("/relatorios#treino"),
@@ -196,10 +186,52 @@ function WorkoutTimer({ groups }: { groups: string[] }) {
         </Button>
       )}
       {elapsed > 0 && !watch.startedAt && (
-        <Button variant="ghost" onClick={() => update({ startedAt: null, accumulated: 0 })} aria-label="Zerar cronômetro" title="Zerar sem salvar">
+        <Button variant="ghost" onClick={reset} aria-label="Zerar cronômetro" title="Zerar sem salvar">
           <LuRotateCcw className="size-4" aria-hidden />
         </Button>
       )}
+    </div>
+  );
+}
+
+/** Reabrir o último treino encerrado hoje (até 1 hora depois de encerrar). */
+function ReopenWorkout({ sessions }: { sessions: WorkoutSession[] }) {
+  const last = sessions.reduce<WorkoutSession | null>((a, w) => (!a || w.endedAt > a.endedAt ? w : a), null);
+  const until = last ? Date.parse(last.endedAt) + REOPEN_WINDOW_MS : 0;
+  const [now, setNow] = useState(() => Date.now());
+  // Atualiza a cada minuto (minutos restantes) e some quando passa 1 hora.
+  useEffect(() => {
+    if (!until) return;
+    const id = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(id);
+  }, [until]);
+  if (!last || now >= until) return null;
+  const minutesLeft = Math.max(1, Math.ceil((until - now) / 60_000));
+
+  const reopen = () => {
+    if (Date.now() >= until) return;
+    const saved = lastFinished.get();
+    const ms = saved.sessionId === last.id ? saved.ms : last.minutes * 60_000;
+    askConfirm({
+      title: "Reabrir o treino?",
+      body: `O cronômetro volta de ${formatTimer(ms / 1000)} e continua contando. O treino só entra nos Relatórios de novo quando você encerrar.`,
+      actionLabel: "Reabrir treino",
+      onConfirm: () => {
+        deleteWorkoutSession(last.id);
+        lastFinished.set({ sessionId: "", ms: 0 });
+        stopwatch.set({ startedAt: Date.now(), accumulated: ms });
+        pushToast({ message: "Treino reaberto. O cronômetro continua de onde parou." });
+      },
+    });
+  };
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <Button size="sm" onClick={reopen}>
+        <LuRotateCcw className="size-4" aria-hidden />
+        Reabrir treino
+      </Button>
+      <span className="text-meta text-ink-3">Disponível por mais {minutesLeft} min</span>
     </div>
   );
 }
@@ -278,12 +310,13 @@ function ExerciseRow({ exercise, data, today, editable }: { exercise: Exercise; 
   const previous = previousLog(data.exerciseLogs, exercise.id, today);
   const record = bestBefore(data.exerciseLogs, exercise, today);
   const cardio = exercise.kind === "cardio";
-  const fieldsKey = current ? `${current.load}-${current.reps}-${current.sets}-${current.minutes}-${current.distanceKm}` : "none";
+  const fieldsKey = `${current ? `${current.load}-${current.reps}-${current.sets}-${current.minutes}-${current.distanceKm}` : "none"}|${exercise.sets}-${exercise.reps}`;
 
+  // Séries e repetições já vêm preenchidas com o padrão do exercício (dá para mudar).
   const initial = () => ({
     a: current ? String((cardio ? current.minutes : current.load) ?? "") : "",
-    b: current ? String((cardio ? current.distanceKm : current.reps) ?? "") : "",
-    c: current && !cardio ? String(current.sets ?? "") : "",
+    b: current ? String((cardio ? current.distanceKm : current.reps) ?? "") : !cardio && exercise.reps ? String(exercise.reps) : "",
+    c: current ? (!cardio ? String(current.sets ?? "") : "") : !cardio && exercise.sets ? String(exercise.sets) : "",
   });
   const [values, setValues] = useState(initial);
   // Atualiza quando o registro oficial chega da nuvem.

@@ -15,6 +15,7 @@ import { useSyncExternalStore } from "react";
 import type {
   Area,
   ClockTime,
+  Exercise,
   ExerciseLog,
   FocusSession,
   Goal,
@@ -534,12 +535,14 @@ export function logExercise(log: ExerciseLog) {
 }
 
 /** Encerra o treino e guarda a duração (usado pelos relatórios). */
-export function finishWorkout(input: { minutes: number; groups: string[] }) {
+/** Devolve o id do treino salvo (ou null se não salvou). */
+export function finishWorkout(input: { minutes: number; groups: string[] }): string | null {
   const now = new Date();
   const minutes = Math.round(input.minutes);
-  return run("finishWorkout", {
+  const id = newId();
+  const ok = run("finishWorkout", {
     session: {
-      id: newId(),
+      id,
       date: toISODate(now),
       startedAt: new Date(now.getTime() - minutes * 60_000).toISOString(),
       endedAt: now.toISOString(),
@@ -547,15 +550,21 @@ export function finishWorkout(input: { minutes: number; groups: string[] }) {
       groups: input.groups,
     },
   });
+  return ok ? id : null;
 }
 
 export function deleteWorkoutSession(id: ID) {
   run("remove", { collection: "workoutSessions", ids: [id] });
 }
 
-export function saveExercise(input: { name: string; group: string; kind: "strength" | "cardio" }) {
+export function saveExercise(input: { name: string; group: string; kind: "strength" | "cardio"; sets?: number | null; reps?: number | null }) {
   if (!input.name.trim()) return;
   save("exercises", [{ id: newId(), ...input, name: input.name.trim() }]);
+}
+
+/** Séries e repetições padrão do exercício (aparecem já preenchidas no treino). */
+export function updateExerciseTargets(exercise: Exercise, targets: { sets: number | null; reps: number | null }) {
+  save("exercises", [{ ...exercise, ...targets }]);
 }
 
 export function deleteExercise(id: ID) {

@@ -163,6 +163,9 @@ export interface Exercise {
   /** Grupo muscular ou "Cardio" */
   group: string;
   kind: "strength" | "cardio";
+  /** Séries e repetições padrão (já aparecem preenchidas no treino do dia) */
+  sets?: number | null;
+  reps?: number | null;
 }
 
 export interface ExerciseLog {
