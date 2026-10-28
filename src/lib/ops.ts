@@ -23,7 +23,8 @@ import type {
 } from "@/types/domain";
 import { spawnNext } from "@/features/tasks/lib/recurrence";
 import { areaOf } from "@/lib/areas";
-import { XP_PER_HABIT, XP_PER_WORKOUT_LOG, xpForFocus, xpForTask } from "@/features/gamification/lib/xp";
+import { XP_PER_WORKOUT_LOG, xpForFocus, xpForHabit, xpForTask } from "@/features/gamification/lib/xp";
+import { habitStreak } from "@/lib/selectors";
 
 export type Delta = {
   upsert?: { [K in CollectionKey]?: EntityOf<K>[] };
@@ -174,14 +175,16 @@ function setHabitDone(
     : habit.checks.filter((d) => d !== args.date);
 
   if (args.done) {
+    // 10 XP; com 10 dias seguidos ou mais (contando este dia), 20 XP.
+    const amount = xpForHabit(habitStreak({ ...habit, checks }, args.date));
     return {
       upsert: {
         habits: [{ ...habit, checks }],
         xpEvents: [
-          xpEvent(args.xpId, XP_PER_HABIT, "habit", `${habit.id}:${args.date}`, ctx.now, { area: areaOf(ws, habit.moduleId), day: args.date }),
+          xpEvent(args.xpId, amount, "habit", `${habit.id}:${args.date}`, ctx.now, { area: areaOf(ws, habit.moduleId), day: args.date }),
         ],
       },
-      profile: withXp(ws.profile, XP_PER_HABIT, ctx.now),
+      profile: withXp(ws.profile, amount, ctx.now),
     };
   }
   const events = ws.xpEvents.filter((e) => e.source === "habit" && e.refId === `${habit.id}:${args.date}`);

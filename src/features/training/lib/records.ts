@@ -51,3 +51,11 @@ export function bestBefore(logs: ExerciseLog[], exercise: Exercise, before: ISOD
 export function formatNumber(n: number): string {
   return n.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 }
+
+/** Exercícios na ordem escolhida pelo usuário (os sem posição ficam no fim, na ordem de criação). */
+export function sortExercises<T extends Pick<Exercise, "order">>(list: T[]): T[] {
+  return list
+    .map((e, i) => ({ e, i }))
+    .sort((x, y) => (x.e.order ?? Number.MAX_SAFE_INTEGER) - (y.e.order ?? Number.MAX_SAFE_INTEGER) || x.i - y.i)
+    .map((x) => x.e);
+}

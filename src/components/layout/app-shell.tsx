@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getState, loadWorkspace, pushToast, restoreFocus, setPaletteOpen } from "@/lib/store/app-store";
+import { getState, loadWorkspace, pushToast, refreshWorkspace, restoreFocus, setPaletteOpen } from "@/lib/store/app-store";
 import { FocusEngine } from "@/features/focus/components/focus-engine";
 import { InstallGuide } from "@/features/install/install-guide";
 import { initPush } from "@/features/notifications/push-client";
@@ -23,6 +23,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       restoreFocus();
       void loadWorkspace();
     }
+  }, []);
+
+  // O que foi feito em outro aparelho aparece aqui sem recarregar: confere ao voltar
+  // para o app (trocar de aba, desbloquear o celular) e a cada 30 segundos com o app na tela.
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === "visible") void refreshWorkspace();
+    };
+    const timer = window.setInterval(refresh, 30_000);
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("focus", refresh);
+    window.addEventListener("online", refresh);
+    window.addEventListener("pageshow", refresh);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("online", refresh);
+      window.removeEventListener("pageshow", refresh);
+    };
   }, []);
 
   // Lembretes (notificações): prepara o aparelho e confere a inscrição.

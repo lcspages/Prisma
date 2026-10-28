@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { LuCheck, LuFlag, LuMusic, LuPause, LuPlay, LuPlus, LuRotateCcw, LuTrash2, LuTrophy } from "react-icons/lu";
+import { LuArrowDown, LuArrowDownUp, LuArrowUp, LuCheck, LuFlag, LuMusic, LuPause, LuPlay, LuPlus, LuRotateCcw, LuTrash2, LuTrophy } from "react-icons/lu";
 import { useRouter } from "next/navigation";
 import type { Exercise, TrainingPlan, WorkoutSession, Workspace } from "@/types/domain";
-import { askConfirm, deleteWorkoutSession, finishWorkout, logExercise, pushToast, saveTrainingPlan, toggleFinisher } from "@/lib/store/app-store";
+import { askConfirm, deleteWorkoutSession, finishWorkout, logExercise, pushToast, reorderExercises, saveTrainingPlan, toggleFinisher } from "@/lib/store/app-store";
 import { addDaysISO, formatDuration, formatTimer, parseISODate, toISODate, WEEKDAY_LONG, WEEKDAY_SHORT } from "@/lib/dates";
 import { newId } from "@/lib/id";
 import { useTick } from "@/lib/hooks/use-tick";
@@ -13,8 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/page";
 import { TaskCheck } from "@/components/ui/task-check";
-import { bestBefore, formatNumber, logOn, previousLog } from "../lib/records";
-import { elapsedOf, lastFinished, rest, REOPEN_WINDOW_MS, stopwatch } from "../lib/workout-clock";
+import { bestBefore, formatNumber, logOn, previousLog, sortExercises } from "../lib/records";
+import { elapsedOf, lastFinished, rest, REOPEN_WINDOW_MS, seriesDone, seriesOf, stopwatch, toggleSeries } from "../lib/workout-clock";
 import { RestTimer } from "./rest-timer";
 
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -38,8 +38,9 @@ export function WorkoutToday({
   const dayDate = addDaysISO(today, offset);
   const groups = plan.split[String(day)] ?? [];
   const exercises = data.exercises;
-  const strength = exercises.filter((e) => e.kind === "strength" && groups.includes(e.group));
-  const cardio = exercises.filter((e) => e.kind === "cardio");
+  const strength = sortExercises(exercises.filter((e) => e.kind === "strength" && groups.includes(e.group)));
+  const cardio = sortExercises(exercises.filter((e) => e.kind === "cardio"));
+  const [reordering, setReordering] = useState<"strength" | "cardio" | null>(null);
   const doneToday = data.workoutSessions.filter((w) => w.date === today);
   const watch = stopwatch.use();
   const started = watch.startedAt !== null || watch.accumulated > 0;
@@ -92,22 +93,44 @@ export function WorkoutToday({
         ) : strength.length === 0 ? (
           <p className="mt-3 text-ink-2">Cadastre exercícios desses grupos na aba Exercícios.</p>
         ) : (
-          <ul className="mt-5 divide-y divide-line">
-            {strength.map((e) => (
-              <ExerciseRow key={e.id} exercise={e} data={data} today={today} editable={isToday} />
-            ))}
-          </ul>
+          <>
+            <ListHeader
+              title="Exercícios"
+              canReorder={strength.length > 1}
+              reordering={reordering === "strength"}
+              onToggle={() => setReordering((r) => (r === "strength" ? null : "strength"))}
+            />
+            {reordering === "strength" ? (
+              <ReorderList list={strength} all={exercises} />
+            ) : (
+              <ul className="mt-3 divide-y divide-line">
+                {strength.map((e) => (
+                  <ExerciseRow key={e.id} exercise={e} data={data} today={today} editable={isToday} />
+                ))}
+              </ul>
+            )}
+          </>
         )}
       </section>
 
       {isToday && cardio.length > 0 && (
         <section className="rounded-3xl border border-line bg-surface p-5 md:p-6">
-          <h3 className="font-semibold text-ink">Cardio</h3>
-          <ul className="mt-3 divide-y divide-line">
-            {cardio.map((e) => (
-              <ExerciseRow key={e.id} exercise={e} data={data} today={today} editable />
-            ))}
-          </ul>
+          <ListHeader
+            title="Cardio"
+            heading
+            canReorder={cardio.length > 1}
+            reordering={reordering === "cardio"}
+            onToggle={() => setReordering((r) => (r === "cardio" ? null : "cardio"))}
+          />
+          {reordering === "cardio" ? (
+            <ReorderList list={cardio} all={exercises} />
+          ) : (
+            <ul className="mt-3 divide-y divide-line">
+              {cardio.map((e) => (
+                <ExerciseRow key={e.id} exercise={e} data={data} today={today} editable />
+              ))}
+            </ul>
+          )}
         </section>
       )}
 
@@ -368,8 +391,12 @@ function ExerciseRow({ exercise, data, today, editable }: { exercise: Exercise; 
         { key: "c" as const, label: "Séries", unit: "", placeholder: previous?.sets },
       ];
 
+  // Quantas bolinhas de série mostrar: o que está no campo Séries (ou o padrão / o último treino).
+  const seriesCount = cardio ? 0 : Math.min(12, Math.max(0, Math.round(c ?? exercise.sets ?? previous?.sets ?? 0)));
+
   return (
-    <li className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 md:flex-row md:items-center">
+    <li className="py-4 first:pt-0 last:pb-0">
+    <div className="flex flex-col gap-3 md:flex-row md:items-center">
       <div className="min-w-0 flex-1">
         <p className="flex items-center gap-2 font-semibold text-ink">
           {exercise.name}
@@ -415,7 +442,120 @@ function ExerciseRow({ exercise, data, today, editable }: { exercise: Exercise; 
           </Button>
         )}
       </form>
+    </div>
+      {editable && seriesCount > 0 && <SeriesChecks exerciseId={exercise.id} name={exercise.name} count={seriesCount} today={today} />}
     </li>
+  );
+}
+
+/** Uma bolinha por série: toque ao terminar cada série para não se perder. */
+function SeriesChecks({ exerciseId, name, count, today }: { exerciseId: string; name: string; count: number; today: string }) {
+  const state = seriesDone.use();
+  const done = seriesOf(state, today, exerciseId).filter((n) => n <= count);
+  const all = done.length >= count;
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-1.5" role="group" aria-label={`Séries de ${name}`}>
+      <span className={cn("mr-1 text-meta", all ? "font-semibold text-primary-ink" : "text-ink-3")}>
+        {all ? "Séries feitas" : `Séries ${done.length}/${count}`}
+      </span>
+      {Array.from({ length: count }, (_, i) => i + 1).map((n) => {
+        const checked = done.includes(n);
+        return (
+          <button
+            key={n}
+            type="button"
+            role="checkbox"
+            aria-checked={checked}
+            aria-label={`Série ${n} de ${name}`}
+            onClick={() => toggleSeries(today, exerciseId, n)}
+            className={cn(
+              "tabular grid size-9 place-items-center rounded-full border-[1.5px] text-meta font-semibold transition-colors",
+              checked ? "border-primary bg-primary text-on-primary" : "border-line-strong bg-surface text-ink-2 hover:border-primary",
+            )}
+          >
+            {checked ? <LuCheck className="size-4" aria-hidden /> : n}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function ListHeader({
+  title,
+  heading,
+  canReorder,
+  reordering,
+  onToggle,
+}: {
+  title: string;
+  heading?: boolean;
+  canReorder: boolean;
+  reordering: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className={cn("flex items-center justify-between gap-3", !heading && "mt-5")}>
+      {heading ? <h3 className="font-semibold text-ink">{title}</h3> : <p className="text-meta font-semibold text-ink-2">{title}</p>}
+      {canReorder && (
+        <Button size="sm" variant={reordering ? "primary" : "ghost"} onClick={onToggle} aria-pressed={reordering}>
+          {reordering ? (
+            <>
+              <LuCheck className="size-4" aria-hidden />
+              Pronto
+            </>
+          ) : (
+            <>
+              <LuArrowDownUp className="size-4" aria-hidden />
+              Reordenar
+            </>
+          )}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+/** Setas para subir e descer os exercícios. A ordem vale para todos os dias e para a aba Exercícios. */
+function ReorderList({ list, all }: { list: Exercise[]; all: Exercise[] }) {
+  const move = (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= list.length) return;
+    const next = [...list];
+    [next[index], next[target]] = [next[target], next[index]];
+    // Encaixa a nova ordem nas mesmas posições da lista completa.
+    const full = sortExercises(all);
+    const ids = new Set(list.map((e) => e.id));
+    let k = 0;
+    reorderExercises(full.map((e) => (ids.has(e.id) ? next[k++] : e)));
+  };
+  return (
+    <ol className="mt-3 space-y-2">
+      {list.map((e, i) => (
+        <li key={e.id} className="flex items-center gap-3 rounded-2xl border border-line bg-canvas px-3 py-2">
+          <span className="tabular w-5 text-center text-meta font-semibold text-ink-3">{i + 1}</span>
+          <span className="min-w-0 flex-1 truncate font-semibold text-ink">{e.name}</span>
+          <button
+            type="button"
+            onClick={() => move(i, -1)}
+            disabled={i === 0}
+            aria-label={`Subir ${e.name}`}
+            className="grid size-10 place-items-center rounded-xl text-ink-2 hover:bg-surface-2 hover:text-ink disabled:opacity-30"
+          >
+            <LuArrowUp className="size-4" aria-hidden />
+          </button>
+          <button
+            type="button"
+            onClick={() => move(i, 1)}
+            disabled={i === list.length - 1}
+            aria-label={`Descer ${e.name}`}
+            className="grid size-10 place-items-center rounded-xl text-ink-2 hover:bg-surface-2 hover:text-ink disabled:opacity-30"
+          >
+            <LuArrowDown className="size-4" aria-hidden />
+          </button>
+        </li>
+      ))}
+    </ol>
   );
 }
 

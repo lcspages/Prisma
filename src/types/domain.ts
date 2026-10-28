@@ -166,6 +166,8 @@ export interface Exercise {
   /** Séries e repetições padrão (já aparecem preenchidas no treino do dia) */
   sets?: number | null;
   reps?: number | null;
+  /** Posição na lista do treino (menor primeiro); sem valor vai para o fim */
+  order?: number | null;
 }
 
 export interface ExerciseLog {

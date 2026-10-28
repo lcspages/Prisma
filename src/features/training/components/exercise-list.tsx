@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { cn } from "@/lib/cn";
 import { GroupPicker } from "./group-picker";
-import { bestBefore, DEFAULT_GROUPS, formatNumber, splitGroups } from "../lib/records";
+import { bestBefore, DEFAULT_GROUPS, formatNumber, sortExercises, splitGroups } from "../lib/records";
 
 /** Exercícios cadastrados por grupo, com recorde e último registro. */
 export function ExerciseList({ data }: { data: Workspace }) {
@@ -106,8 +106,7 @@ export function ExerciseList({ data }: { data: Workspace }) {
           </h3>
           {isOpen && (
           <ul className="divide-y divide-line rounded-3xl border border-line bg-surface">
-            {exercises
-              .filter((e) => e.group === g)
+            {sortExercises(exercises.filter((e) => e.group === g))
               .map((e) => {
                 const logs = data.exerciseLogs.filter((l) => l.exerciseId === e.id).sort((a, b) => (a.date < b.date ? 1 : -1));
                 const best = bestBefore(data.exerciseLogs, e, tomorrow);

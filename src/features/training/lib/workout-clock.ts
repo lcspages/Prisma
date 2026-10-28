@@ -85,3 +85,29 @@ export const rest = createStore<Rest>("prisma:workout-rest", { seconds: 60, ends
 
 export const REST_MIN_SECONDS = 5;
 export const REST_MAX_SECONDS = 30 * 60;
+
+/* ---------- Séries feitas no treino do dia ---------- */
+
+export interface SeriesDone {
+  date: string;
+  /** id do exercício → números das séries marcadas (1, 2, 3…) */
+  done: Record<string, number[]>;
+}
+
+const isSeries = (v: unknown): v is SeriesDone =>
+  !!v && typeof v === "object" && typeof (v as SeriesDone).date === "string" && typeof (v as SeriesDone).done === "object";
+
+export const seriesDone = createStore<SeriesDone>("prisma:workout-series", { date: "", done: {} }, isSeries);
+
+/** Séries marcadas hoje de um exercício (as de outros dias são descartadas). */
+export function seriesOf(state: SeriesDone, date: string, exerciseId: string): number[] {
+  return state.date === date ? (state.done[exerciseId] ?? []) : [];
+}
+
+export function toggleSeries(date: string, exerciseId: string, n: number) {
+  const cur = seriesDone.get();
+  const base = cur.date === date ? cur.done : {};
+  const list = base[exerciseId] ?? [];
+  const next = list.includes(n) ? list.filter((x) => x !== n) : [...list, n].sort((a, b) => a - b);
+  seriesDone.set({ date, done: { ...base, [exerciseId]: next } });
+}

@@ -13,7 +13,15 @@ export function xpForTask(task: Task): number {
   return xp;
 }
 
-export const XP_PER_HABIT = 5;
+export const XP_PER_HABIT = 10;
+/** Hábito com 10 dias seguidos ou mais vale o dobro. */
+export const XP_PER_HABIT_STREAK = 20;
+export const HABIT_STREAK_BONUS_DAYS = 10;
+
+/** XP de marcar um hábito, pela sequência que ele alcança naquele dia. */
+export function xpForHabit(streak: number): number {
+  return streak >= HABIT_STREAK_BONUS_DAYS ? XP_PER_HABIT_STREAK : XP_PER_HABIT;
+}
 export const XP_PER_WORKOUT_LOG = 3;
 
 /** 2 XP a cada 5 minutos de foco concluído. */

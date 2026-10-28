@@ -199,6 +199,7 @@ function run<N extends OpName>(name: N, args: OpArgs<N>): boolean {
     return false;
   }
   setState((s) => (s.data ? { ...s, data: applyDelta(s.data, delta) } : s));
+  writeSeq++;
 
   setState((s) => ({ ...s, pending: s.pending + 1, syncError: null }));
   // As escritas saem em fila, na ordem em que aconteceram: criar um hábito e
@@ -279,6 +280,30 @@ export async function loadWorkspace(opts: { silent?: boolean } = {}) {
     setState((s) => ({ ...s, status: "ready", data, ui: { ...s.ui, context } }));
   } catch {
     if (!opts.silent) setState((s) => ({ ...s, status: "error" }));
+  }
+}
+
+let writeSeq = 0;
+let refreshing = false;
+
+/**
+ * Traz o que mudou em outro aparelho (celular ↔ computador) sem recarregar a página.
+ * Só troca os dados quando não há nada nosso indo para a nuvem nem saindo durante a busca,
+ * para nunca apagar da tela uma ação que acabou de ser feita aqui.
+ */
+export async function refreshWorkspace() {
+  if (refreshing || state.status !== "ready" || state.pending > 0) return;
+  refreshing = true;
+  const seq = writeSeq;
+  try {
+    const data = await api.getWorkspace();
+    if (state.pending > 0 || seq !== writeSeq || !state.data) return;
+    if (JSON.stringify(data) === JSON.stringify(state.data)) return;
+    setState((s) => ({ ...s, data }));
+  } catch {
+    /* sem conexão: tenta de novo na próxima vez */
+  } finally {
+    refreshing = false;
   }
 }
 
@@ -560,6 +585,15 @@ export function deleteWorkoutSession(id: ID) {
 export function saveExercise(input: { name: string; group: string; kind: "strength" | "cardio"; sets?: number | null; reps?: number | null }) {
   if (!input.name.trim()) return;
   save("exercises", [{ id: newId(), ...input, name: input.name.trim() }]);
+}
+
+/** Grava a nova ordem dos exercícios (lista completa, na ordem desejada). Só envia os que mudaram. */
+export function reorderExercises(ordered: Exercise[]) {
+  const changed: Exercise[] = [];
+  ordered.forEach((e, i) => {
+    if (e.order !== i) changed.push({ ...e, order: i });
+  });
+  if (changed.length) save("exercises", changed);
 }
 
 /** Séries e repetições padrão do exercício (aparecem já preenchidas no treino). */
