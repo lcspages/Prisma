@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/page";
 import { TaskCheck } from "@/components/ui/task-check";
-import { bestBefore, formatNumber, logOn, previousLog, sortExercises } from "../lib/records";
+import { bestBefore, formatNumber, logOn, previousLog, sortExercises, exercisesForDay } from "../lib/records";
 import { elapsedOf, lastFinished, rest, REOPEN_WINDOW_MS, seriesDone, seriesOf, stopwatch, toggleSeries } from "../lib/workout-clock";
 import { RestTimer } from "./rest-timer";
 
@@ -38,7 +38,7 @@ export function WorkoutToday({
   const dayDate = addDaysISO(today, offset);
   const groups = plan.split[String(day)] ?? [];
   const exercises = data.exercises;
-  const strength = sortExercises(exercises.filter((e) => e.kind === "strength" && groups.includes(e.group)));
+  const strength = sortExercises(exercisesForDay(exercises, groups, plan.dayPicks?.[String(day)]));
   const cardio = sortExercises(exercises.filter((e) => e.kind === "cardio"));
   const [reordering, setReordering] = useState<"strength" | "cardio" | null>(null);
   const doneToday = data.workoutSessions.filter((w) => w.date === today);

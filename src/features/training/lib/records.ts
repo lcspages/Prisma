@@ -59,3 +59,16 @@ export function sortExercises<T extends Pick<Exercise, "order">>(list: T[]): T[]
     .sort((x, y) => (x.e.order ?? Number.MAX_SAFE_INTEGER) - (y.e.order ?? Number.MAX_SAFE_INTEGER) || x.i - y.i)
     .map((x) => x.e);
 }
+
+/** Exercícios de musculação de um dia: os grupos do dia, respeitando os exercícios escolhidos para aquele dia. */
+export function exercisesForDay<T extends Pick<Exercise, "id" | "group" | "kind">>(
+  exercises: T[],
+  groups: string[],
+  picks: Record<string, ID[]> | undefined,
+): T[] {
+  return exercises.filter((e) => {
+    if (e.kind !== "strength" || !groups.includes(e.group)) return false;
+    const pick = picks?.[e.group];
+    return !pick || pick.includes(e.id);
+  });
+}

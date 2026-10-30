@@ -207,6 +207,12 @@ export interface TrainingPlan {
   youtubeUrl: string | null;
   /** Dia da semana (0 = domingo) → grupos musculares */
   split: Record<string, string[]>;
+  /**
+   * Exercícios escolhidos de um grupo num dia (dia da semana → grupo → ids).
+   * Sem escolha, o dia mostra todos os exercícios do grupo.
+   * Ex.: Ombros com 2 exercícios na segunda (junto com Peito) e os 4 na quinta.
+   */
+  dayPicks?: Record<string, Record<string, ID[]>>;
   finishers: Finisher[];
   /** Data → ids dos finalizadores concluídos naquele dia */
   finisherDone: Record<ISODate, ID[]>;
