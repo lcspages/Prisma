@@ -31,8 +31,8 @@ export function DesktopShot({ shot, alt, priority, className }: { shot: Shot; al
         <span className="mx-auto rounded-md bg-black/5 px-10 py-0.5 text-[10px] text-black/45 dark:bg-white/10 dark:text-white/45">prismarotina.com.br</span>
         <span className="w-[42px]" />
       </div>
-      <Image src={`/landing/pc-${shot}.webp`} alt={alt} width={1440} height={900} priority={priority} sizes="(min-width: 1024px) 820px, 100vw" className={cn(img, "dark:hidden")} />
-      <Image src={`/landing/pc-${shot}-dark.webp`} alt={alt} width={1440} height={900} sizes="(min-width: 1024px) 820px, 100vw" className={cn(img, "hidden dark:block")} />
+      <Image src={`/landing/pc-${shot}.webp`} alt={alt} width={1440} height={900} priority={priority} sizes="(min-width: 1024px) 1040px, 100vw" className={cn(img, "dark:hidden")} />
+      <Image src={`/landing/pc-${shot}-dark.webp`} alt={alt} width={1440} height={900} sizes="(min-width: 1024px) 1040px, 100vw" className={cn(img, "hidden dark:block")} />
     </div>
   );
 }

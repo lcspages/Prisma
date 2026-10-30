@@ -149,15 +149,15 @@ export function LandingPage() {
         {/* Abertura no céu */}
         <section id="inicio" className="p-2 sm:p-3">
           <Sky priority className="rounded-[28px] lg:h-[calc(100svh-24px)] lg:min-h-[640px] lg:rounded-[40px]">
-            <div className={cn(WRAP, "grid h-full items-center gap-8 pt-28 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-10 lg:pt-16")}>
-              <div className="text-center lg:pb-10 lg:text-left">
-                <h1 className="mx-auto max-w-[11ch] text-[48px] font-light leading-[50px] tracking-[-0.045em] text-ink sm:text-[68px] sm:leading-[68px] lg:mx-0 lg:text-[88px] lg:leading-[86px]">
+            <div className={cn(WRAP, "grid h-full items-center gap-8 pt-28 lg:content-start lg:gap-12 lg:pt-32")}>
+              <div className="text-center">
+                <h1 className="mx-auto max-w-[11ch] text-[48px] font-light leading-[50px] tracking-[-0.045em] text-ink sm:text-[68px] sm:leading-[68px] lg:max-w-none lg:text-[76px] lg:leading-[80px]">
                   Sua rotina num lugar só.
                 </h1>
-                <p className="mx-auto mt-5 max-w-[30ch] text-[17px] leading-[26px] text-ink/75 lg:mx-0 lg:mt-7 lg:max-w-[34ch] lg:text-[19px] lg:leading-[29px]">
+                <p className="mx-auto mt-5 max-w-[30ch] text-[17px] leading-[26px] text-ink/75 lg:mt-5 lg:max-w-none lg:text-[19px] lg:leading-[29px]">
                   Hábitos, tarefas, foco e treino. Abre no navegador, sem baixar nada.
                 </p>
-                <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5 lg:justify-start lg:gap-3">
+                <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5 lg:gap-3">
                   <a id="cta-inicio" href="#planos" className={cn(BTN_DARK, "h-13 px-6 text-[15px] sm:h-14 sm:px-8 sm:text-[16px]")}>
                     Quero o Prisma
                   </a>
@@ -172,14 +172,9 @@ export function LandingPage() {
                 <HeroWidgets />
               </div>
 
-              {/* Computador: a janela do app, saindo pela direita */}
-              <div className="relative hidden h-full w-[min(46vw,560px)] self-stretch lg:block">
-                <DesktopShot
-                  shot="hoje"
-                  priority
-                  alt="Tela inicial do Prisma no computador"
-                  className="absolute left-0 top-1/2 w-[min(64vw,860px)] -translate-y-[42%]"
-                />
+              {/* Computador: a janela do app embaixo do texto, saindo pela borda de baixo */}
+              <div className="hidden justify-center lg:flex">
+                <DesktopShot shot="hoje" priority alt="Tela inicial do Prisma no computador" className="w-[min(100%,1040px)]" />
               </div>
             </div>
           </Sky>
