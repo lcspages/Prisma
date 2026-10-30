@@ -1,7 +1,7 @@
 import { LuPlay } from "react-icons/lu";
 import { cn } from "@/lib/cn";
 import { LANDING_VIDEO, youtubeEmbed } from "@/lib/landing";
-import { SCREEN, TITLE } from "./styles";
+import { TITLE } from "./styles";
 
 /**
  * Seção do vídeo de apresentação. O vídeo é configurado em lib/landing.ts.
@@ -20,13 +20,19 @@ export function VideoSlot() {
   const desktop = !embed && src && srcDesktop;
 
   return (
-    <section aria-labelledby="video-title" className={cn(SCREEN, "pb-14")}>
-      <div className="mx-auto grid w-full max-w-6xl justify-items-center gap-8 px-5 sm:px-8 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-12">
-        <h2 id="video-title" className={cn(TITLE, "text-center lg:justify-self-start lg:text-left")}>
+    <section aria-labelledby="video-title" className="py-10 lg:py-16">
+      <div
+        className={cn(
+          "mx-auto grid w-full max-w-6xl justify-items-center gap-8 px-5 sm:px-8 lg:px-12",
+          // Vídeo deitado no computador: título em cima e vídeo grande; só o vídeo em pé: lado a lado.
+          !desktop && "lg:grid-cols-2 lg:items-center lg:gap-16",
+        )}
+      >
+        <h2 id="video-title" className={cn(TITLE, "text-center", !desktop && "lg:justify-self-start lg:text-left")}>
           Veja como funciona
         </h2>
         {desktop && (
-          <div className="relative hidden aspect-video w-full max-w-[720px] overflow-hidden rounded-[28px] bg-[#141414] md:block">
+          <div className="relative hidden aspect-video w-full max-w-[960px] overflow-hidden rounded-[28px] bg-[#141414] md:block">
             <video
               src={srcDesktop}
               poster={posterDesktop || undefined}

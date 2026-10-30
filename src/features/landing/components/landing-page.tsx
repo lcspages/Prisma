@@ -205,7 +205,7 @@ export function LandingPage() {
         </section>
 
         {/* Experimente */}
-        <section aria-labelledby="experimente" className={cn(SCREEN, "py-10")}>
+        <section aria-labelledby="experimente" className="py-10 lg:py-16">
           <div className={WRAP}>
             <Sky className="rounded-[32px] lg:rounded-[40px]">
               <div className="grid items-center gap-10 px-5 py-14 sm:px-10 lg:grid-cols-2 lg:gap-16 lg:px-16 lg:py-20">
@@ -226,7 +226,7 @@ export function LandingPage() {
         <VideoSlot />
 
         {/* Planos */}
-        <section id="planos" aria-labelledby="planos-titulo" className={cn(SCREEN, "scroll-mt-20 py-20")}>
+        <section id="planos" aria-labelledby="planos-titulo" className="scroll-mt-20 py-16 lg:py-24">
           <div className={WRAP}>
             <h2 id="planos-titulo" className={cn(TITLE, "text-center")}>
               Escolha seu plano.
