@@ -28,7 +28,8 @@ export function PortraitOnly() {
     update();
     // Onde o navegador deixa (app instalado no Android), trava em pé de verdade.
     try {
-      void screen.orientation?.lock?.("portrait").catch(() => {});
+      const o = screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> };
+      void o?.lock?.("portrait").catch(() => {});
     } catch {
       /* sem suporte */
     }
