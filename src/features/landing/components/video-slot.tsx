@@ -2,6 +2,7 @@ import { LuPlay } from "react-icons/lu";
 import { cn } from "@/lib/cn";
 import { LANDING_VIDEO, youtubeEmbed } from "@/lib/landing";
 import { TITLE } from "./styles";
+import { PlayVideo } from "./play-video";
 
 /**
  * Seção do vídeo de apresentação. O vídeo é configurado em lib/landing.ts.
@@ -33,16 +34,7 @@ export function VideoSlot() {
         </h2>
         {desktop && (
           <div className="relative hidden aspect-video w-full max-w-[960px] overflow-hidden rounded-[28px] bg-[#141414] md:block">
-            <video
-              src={srcDesktop}
-              poster={posterDesktop || undefined}
-              controls
-              playsInline
-              preload="none"
-              className="absolute inset-0 size-full object-cover"
-            >
-              Seu navegador não conseguiu abrir o vídeo.
-            </video>
+            <PlayVideo src={srcDesktop} poster={posterDesktop} />
           </div>
         )}
         <div className={cn(frame, desktop && "md:hidden")}>
