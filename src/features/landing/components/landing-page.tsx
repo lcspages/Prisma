@@ -180,6 +180,8 @@ export function LandingPage() {
           </Sky>
         </section>
 
+        {/* Fundo com degradê leve entre as seções (do fim da abertura até antes da chamada final) */}
+        <div className="landing-glow">
         {/* Frase central */}
         <section className="py-20 text-center lg:py-32">
           <div className={WRAP}>
@@ -265,6 +267,8 @@ export function LandingPage() {
             </div>
           </div>
         </section>
+
+        </div>
 
         {/* Chamada final no céu */}
         <section className="p-2 sm:p-3">

@@ -240,6 +240,24 @@
   animation: landing-float 6s ease-in-out var(--fd, 0s) infinite;
 }
 
+/* Landing page: degradê leve de azul e amarelo atrás das seções do meio. */
+.landing-glow {
+  background-image:
+    radial-gradient(55% 22% at 0% 8%, rgb(41 152 255 / 0.12), transparent 70%),
+    radial-gradient(50% 18% at 100% 26%, rgb(255 214 72 / 0.14), transparent 70%),
+    radial-gradient(60% 20% at 10% 50%, rgb(41 152 255 / 0.10), transparent 70%),
+    radial-gradient(50% 18% at 95% 72%, rgb(41 152 255 / 0.10), transparent 70%),
+    radial-gradient(55% 18% at 5% 92%, rgb(255 214 72 / 0.12), transparent 70%);
+}
+.dark .landing-glow {
+  background-image:
+    radial-gradient(55% 22% at 0% 8%, rgb(41 152 255 / 0.10), transparent 70%),
+    radial-gradient(50% 18% at 100% 26%, rgb(255 214 72 / 0.06), transparent 70%),
+    radial-gradient(60% 20% at 10% 50%, rgb(41 152 255 / 0.08), transparent 70%),
+    radial-gradient(50% 18% at 95% 72%, rgb(41 152 255 / 0.08), transparent 70%),
+    radial-gradient(55% 18% at 5% 92%, rgb(255 214 72 / 0.05), transparent 70%);
+}
+
 /* Landing page: o menu do topo desce e aparece ao abrir a página. */
 @keyframes landing-header-in {
   from {
