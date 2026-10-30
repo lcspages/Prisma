@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { IconType } from "react-icons";
 import { LuCalendarCheck, LuCheck, LuDumbbell, LuFlame, LuSparkles, LuTimer, LuTrendingUp } from "react-icons/lu";
 import { cn } from "@/lib/cn";
-import { PhoneShot, type Shot } from "./phone-shot";
+import { DesktopShot, PhoneShot, type Shot } from "./phone-shot";
 
 /* ------------------------------------------------------------ demo de hábitos */
 
@@ -94,7 +94,7 @@ export function FeatureShowcase({ phone, cards }: { phone: string; cards: string
   return (
     <>
       <div className={phone}>
-        <div className="grid">
+        <div className="grid lg:hidden">
           {FEATURES.map((f, i) => (
             <PhoneShot
               key={f.shot}
@@ -102,6 +102,20 @@ export function FeatureShowcase({ phone, cards }: { phone: string; cards: string
               alt={f.alt}
               className={cn(
                 "w-[min(62vw,250px)] [grid-area:1/1] transition-[opacity,transform] duration-500 lg:w-[min(280px,calc((100svh-260px)*0.462))]",
+                active === i ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0",
+              )}
+            />
+          ))}
+        </div>
+        {/* Computador: as mesmas telas na versão de computador */}
+        <div className="hidden w-[min(760px,calc(50vw-64px))] shrink-0 lg:grid">
+          {FEATURES.map((f, i) => (
+            <DesktopShot
+              key={f.shot}
+              shot={f.shot}
+              alt={`${f.alt} no computador`}
+              className={cn(
+                "w-full [grid-area:1/1] transition-[opacity,transform] duration-500",
                 active === i ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0",
               )}
             />

@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 import { CHECKOUT_URL, CHECKOUT_URL_LIFETIME, COMPANY } from "@/lib/legal";
 import { PRICES } from "@/lib/landing";
 import { LegalLinks } from "@/components/layout/legal-links";
-import { PhoneShot } from "./phone-shot";
+import { DesktopShot, PhoneShot } from "./phone-shot";
 import { Sky } from "./sky";
 import { VideoSlot } from "./video-slot";
 import { FeatureShowcase, HabitDemo, HeaderShell } from "./landing-interactive";
@@ -167,9 +167,19 @@ export function LandingPage() {
                 </div>
               </div>
 
-              <div className="relative mx-auto -mb-28 w-[min(70vw,280px)] self-end sm:-mb-36 lg:mb-0 lg:w-[min(330px,calc((100svh-120px)*0.462))] lg:translate-y-[18%]">
+              <div className="relative mx-auto -mb-28 w-[min(70vw,280px)] self-end sm:-mb-36 lg:hidden">
                 <PhoneShot shot="hoje" priority alt="Tela inicial do Prisma" className="w-full" />
                 <HeroWidgets />
+              </div>
+
+              {/* Computador: a janela do app, saindo pela direita */}
+              <div className="relative hidden h-full w-[min(46vw,560px)] self-stretch lg:block">
+                <DesktopShot
+                  shot="hoje"
+                  priority
+                  alt="Tela inicial do Prisma no computador"
+                  className="absolute left-0 top-1/2 w-[min(64vw,860px)] -translate-y-[42%]"
+                />
               </div>
             </div>
           </Sky>
@@ -198,7 +208,7 @@ export function LandingPage() {
               <p className="mx-auto mt-3 max-w-[30ch] text-[16px] leading-[25px] text-ink-2 lg:mx-0 lg:text-[18px] lg:leading-[28px]">Toque em uma função para ver a tela.</p>
             </div>
             <FeatureShowcase
-              phone="flex justify-center lg:col-start-1 lg:row-span-2 lg:row-start-1"
+              phone="flex justify-center lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:justify-end"
               cards="grid grid-cols-2 gap-3 lg:col-start-2 lg:self-start lg:gap-4"
             />
           </div>
@@ -269,8 +279,11 @@ export function LandingPage() {
               <a href="#planos" className={cn(BTN_DARK, "mt-8 h-14 px-8 text-[16px]")}>
                 Quero o Prisma
               </a>
-              <div className="mx-auto mt-12 h-[260px] w-[min(62vw,260px)] overflow-hidden lg:mt-16 lg:h-[300px] lg:w-[300px]">
+              <div className="mx-auto mt-12 h-[260px] w-[min(62vw,260px)] overflow-hidden lg:hidden">
                 <PhoneShot shot="foco" alt="Tela de foco do Prisma" className="w-full" />
+              </div>
+              <div className="mx-auto mt-16 hidden h-[340px] w-[min(80vw,820px)] overflow-hidden lg:block">
+                <DesktopShot shot="foco" alt="Tela de foco do Prisma no computador" className="w-full" />
               </div>
             </div>
           </Sky>
