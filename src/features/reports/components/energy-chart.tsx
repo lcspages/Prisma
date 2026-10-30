@@ -85,8 +85,8 @@ export function EnergyChart({ byHour }: { byHour: number[] }) {
         </div>
         <div className="mt-1.5 flex gap-[2px] text-[11px] text-ink-3" aria-hidden>
           {HOURS.map((h) => (
-            <span key={h} className="tabular flex-1 text-center">
-              {h % 3 === 0 ? `${h}h` : ""}
+            <span key={h} className="tabular relative h-4 min-w-0 flex-1">
+              {h % 3 === 0 && <span className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap">{h}h</span>}
             </span>
           ))}
         </div>

@@ -1,15 +1,35 @@
+"use client";
+
+import { useSyncExternalStore } from "react";
 import type { ActivityDay } from "@/lib/selectors";
 import { formatDuration, parseISODate } from "@/lib/dates";
 
 const LEVEL_CLASS = ["bg-heat-0", "bg-heat-1", "bg-heat-2", "bg-heat-3", "bg-heat-4"] as const;
 const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
+/** No celular cabem só as últimas 26 semanas (6 meses) sem rolar de lado. */
+const NARROW_WEEKS = 26;
+const NARROW_QUERY = "(max-width: 767px)";
+function useNarrow() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia(NARROW_QUERY);
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(NARROW_QUERY).matches,
+    () => false,
+  );
+}
+
 /**
  * Mapa de calor estilo GitHub: colunas são semanas (domingo a sábado),
  * a cor é o quanto você estudou, treinou e focou no dia.
  */
-export function ContributionHeatmap({ days }: { days: ActivityDay[] }) {
-  if (days.length === 0) return null;
+export function ContributionHeatmap({ days: allDays }: { days: ActivityDay[] }) {
+  const narrow = useNarrow();
+  if (allDays.length === 0) return null;
+  const days = narrow ? allDays.slice(-(NARROW_WEEKS * 7)) : allDays;
 
   const firstWeekday = parseISODate(days[0].date).getDay();
   const cells: Array<ActivityDay | null> = [...Array<null>(firstWeekday).fill(null), ...days];
@@ -42,25 +62,18 @@ export function ContributionHeatmap({ days }: { days: ActivityDay[] }) {
         Ativo em {activeDays} dos últimos {days.length} dias.
       </figcaption>
 
-      <div
-        aria-hidden
-        className="-mx-1 overflow-x-auto px-1 pb-1"
-        // No celular o mapa rola de lado: começa mostrando os dias mais recentes.
-        ref={(el) => {
-          if (el) el.scrollLeft = el.scrollWidth;
-        }}
-      >
-        <div className="min-w-[640px]">
-        <div className="mb-1.5 grid gap-1 text-[11px] leading-3 text-ink-3" style={gridStyle}>
+      <div aria-hidden>
+        <div>
+        <div className="mb-1.5 grid gap-[3px] text-[11px] leading-3 text-ink-3" style={gridStyle}>
           {monthLabels.map((label, i) => (
             <span key={i} className="overflow-visible whitespace-nowrap">
               {label}
             </span>
           ))}
         </div>
-        <div className="grid gap-1" style={gridStyle}>
+        <div className="grid gap-[3px]" style={gridStyle}>
           {columns.map((col, ci) => (
-            <div key={ci} className="grid grid-rows-7 gap-1">
+            <div key={ci} className="grid grid-rows-7 gap-[3px]">
               {Array.from({ length: 7 }, (_, ri) => {
                 const day = col[ri];
                 if (!day) return <span key={ri} className="aspect-square" />;

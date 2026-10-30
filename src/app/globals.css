@@ -280,5 +280,6 @@
   }
 }
 html {
-  touch-action: manipulation;
+  /* Só rolagem: nada de zoom por pinça nem por toque duplo. */
+  touch-action: pan-x pan-y;
 }

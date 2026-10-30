@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
+import { PortraitOnly } from "@/components/layout/portrait-only";
 import { ThemeProvider, themeScript } from "@/providers/theme-provider";
 import "./globals.css";
 
@@ -24,6 +25,11 @@ export const viewport: Viewport = {
   // Ocupa a tela toda no iPhone e deixa o app saber o tamanho da barrinha de baixo
   // (sem isso, a barrinha do iPhone fica por cima do menu).
   viewportFit: "cover",
+  // Sem zoom de pinça no celular.
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#F8F8F8" },
     { media: "(prefers-color-scheme: dark)", color: "#141414" },
@@ -38,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
+        <PortraitOnly />
       </body>
     </html>
   );

@@ -74,13 +74,13 @@ export function WeeklyReview({ summary, compact = false }: { summary: WeekSummar
           <ul className="mt-3 space-y-2">
             {summary.postponed.slice(0, compact ? 3 : 10).map((t) => (
               <li key={t.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-line px-4 py-3">
-                <button type="button" onClick={() => openEditor({ taskId: t.id })} className="min-w-0 flex-1 text-left">
+                <button type="button" onClick={() => openEditor({ taskId: t.id })} className="min-w-0 flex-1 basis-full text-left sm:basis-0">
                   <span className="block truncate font-semibold text-ink">{t.title}</span>
                   <span className="text-meta text-ink-3">
                     Adiada {t.postponedCount} vezes{t.subtasks.length ? `, ${t.subtasks.length} passos` : ""}
                   </span>
                 </button>
-                <Button size="sm" onClick={() => openBreakdown(t.id)}>
+                <Button size="sm" className="w-full sm:w-auto" onClick={() => openBreakdown(t.id)}>
                   <LuSplit className="size-3.5" aria-hidden />
                   Quebrar em passos
                 </Button>
