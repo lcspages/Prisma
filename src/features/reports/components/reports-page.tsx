@@ -33,7 +33,7 @@ function Card({
   anchor?: string;
 }) {
   return (
-    <section id={anchor} aria-labelledby={id} className={`scroll-mt-20 rounded-3xl border border-line bg-surface p-5 md:p-6 ${className ?? ""}`}>
+    <section id={anchor} aria-labelledby={id} className={`min-w-0 scroll-mt-20 rounded-3xl border border-line bg-surface p-5 md:p-6 ${className ?? ""}`}>
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
         <h2 id={id} className="text-lead font-semibold text-ink">
           {title}
@@ -61,7 +61,7 @@ function ReportsContent({ data, now }: { data: Workspace; now: Date }) {
     <Page>
       <PageHeader title="Relatórios" description="Consistência, treino, horários em que você rende mais e a revisão da semana." />
 
-      <div className="grid gap-5 md:grid-cols-[1fr_1.4fr]">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <Card id="r-level" title={`Nível ${level.level}`} aside={`${level.current} / ${level.needed} XP`}>
           <ProgressBar value={level.current} max={level.needed} label={`Progresso para o nível ${level.level + 1}`} tone="accent" className="h-2" />
           <dl className="mt-5 grid grid-cols-2 gap-3">
