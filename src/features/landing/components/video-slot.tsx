@@ -8,7 +8,7 @@ import { SCREEN, TITLE } from "./styles";
  * Sem vídeo, a seção some no site publicado e mostra um espaço reservado nos testes.
  */
 export function VideoSlot() {
-  const { src, poster, vertical } = LANDING_VIDEO;
+  const { src, poster, vertical, srcDesktop, posterDesktop } = LANDING_VIDEO;
   if (!src && process.env.NODE_ENV === "production") return null;
 
   const frame = cn(
@@ -16,6 +16,8 @@ export function VideoSlot() {
     vertical ? "aspect-[9/16] w-[min(78vw,320px)] lg:w-[min(320px,calc((100svh-190px)*0.5625))]" : "aspect-video w-full max-w-[720px]",
   );
   const embed = src ? youtubeEmbed(src) : null;
+  // Celular vê o vídeo em pé; computador (a partir de 768 px) vê o deitado.
+  const desktop = !embed && src && srcDesktop;
 
   return (
     <section aria-labelledby="video-title" className={cn(SCREEN, "pb-14")}>
@@ -23,7 +25,21 @@ export function VideoSlot() {
         <h2 id="video-title" className={cn(TITLE, "text-center lg:justify-self-start lg:text-left")}>
           Veja como funciona
         </h2>
-        <div className={frame}>
+        {desktop && (
+          <div className="relative hidden aspect-video w-full max-w-[720px] overflow-hidden rounded-[28px] bg-[#141414] md:block">
+            <video
+              src={srcDesktop}
+              poster={posterDesktop || undefined}
+              controls
+              playsInline
+              preload="none"
+              className="absolute inset-0 size-full object-cover"
+            >
+              Seu navegador não conseguiu abrir o vídeo.
+            </video>
+          </div>
+        )}
+        <div className={cn(frame, desktop && "md:hidden")}>
           {embed ? (
             <iframe
               src={embed}
@@ -34,7 +50,7 @@ export function VideoSlot() {
               className="absolute inset-0 size-full"
             />
           ) : src ? (
-            <video src={src} poster={poster || undefined} controls playsInline preload="metadata" className="absolute inset-0 size-full object-cover">
+            <video src={src} poster={poster || undefined} controls playsInline preload="none" className="absolute inset-0 size-full object-cover">
               Seu navegador não conseguiu abrir o vídeo.
             </video>
           ) : (
